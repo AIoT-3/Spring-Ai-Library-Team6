@@ -60,11 +60,8 @@ public class Book {
     @Column(name = "publisher_name", length = 255)
     private String publisherName;
 
-    @Column(name = "first_published_date")
-    private LocalDate firstPublishedDate;
-
-    @Column(name = "edition_published_date")
-    private LocalDate editionPublishedDate;
+    @Column(name = "published_date")
+    private LocalDate publishedDate;
 
     @Column(name = "price", precision = 10, scale = 2)
     private BigDecimal price;

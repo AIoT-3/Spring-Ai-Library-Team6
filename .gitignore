@@ -44,3 +44,4 @@ application-*.yaml
 .code-review-graph
 *.log
 *.tmp
+/src/main/resources/data/

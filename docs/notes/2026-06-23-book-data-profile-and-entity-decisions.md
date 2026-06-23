@@ -1,0 +1,90 @@
+# 2026-06-23 Book Data Profile And Entity Decisions
+
+대상 파일: `src/main/resources/data/BOOK_DB_202112.csv`  
+row 수: 157,118건
+
+## CSV 분석 결과
+
+```
+❯ ./mvnw -q -Dcsv.profile=true -Dtest=BookCsvProfileTest test
+11:10:25.287 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.csv.BookCsvProfileTest -- 
+              Book CSV 요약               
+    metric      |        value         |
+----------------------------------------
+          file  |  BOOK_DB_202112.csv  |
+          rows  |              157118  |
+       columns  |                  18  |
+ headerMatches  |                true  |
+
+11:10:25.772 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.csv.BookCsvProfileTest -- 
+                                  Book CSV Column 분석                                  
+          column            |  filled  |  missing  |       fillRate       |  unique  |
+--------------------------------------------------------------------------------------
+                    SEQ_NO  |  157118  |        0  |                 100  |  157118  |
+          ISBN_THIRTEEN_NO  |  157118  |        0  |                 100  |  157118  |
+                    VLM_NM  |   39708  |   117410  |   25.27272495831159  |    1738  |
+                  TITLE_NM  |  157118  |        0  |                 100  |  120804  |
+                  AUTHR_NM  |  157039  |       79  |   99.94971931923777  |   94882  |
+              PUBLISHER_NM  |  151577  |     5541  |   96.47335123919602  |   20981  |
+                PBLICTE_DE  |       0  |   157118  |                   0  |       0  |
+            ADTION_SMBL_NM  |  129589  |    27529  |   82.47877391514658  |    2123  |
+                 PRC_VALUE  |  111394  |    45724  |   70.89830573199761  |    4342  |
+                 IMAGE_URL  |   98337  |    58781  |    62.5879911913339  |   98331  |
+            BOOK_INTRCN_CN  |   84205  |    72913  |  53.593477513715804  |   74372  |
+                    KDC_NM  |  143057  |    14061  |   91.05067528863657  |    9199  |
+             TITLE_SBST_NM  |  148739  |     8379  |   94.66706551763643  |  110233  |
+             AUTHR_SBST_NM  |  149217  |     7901  |   94.97129545946359  |   85851  |
+            TWO_PBLICTE_DE  |  103518  |    53600  |   65.88551279929735  |    9885  |
+ INTNT_BOOKST_BOOK_EXST_AT  |  154554  |     2564  |    98.3681055003246  |       1  |
+  PORTAL_SITE_BOOK_EXST_AT  |  154554  |     2564  |    98.3681055003246  |       1  |
+                   ISBN_NO  |  100516  |    56602  |   63.97484693033262  |  100516  |
+
+11:10:26.160 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.csv.BookCsvProfileTest -- 
+                    Book CSV ISBN 분석                     
+ isbn13   |  isbn10   |  count   |         rate         |
+---------------------------------------------------------
+   valid  |    valid  |   24068  |  15.318423096017007  |
+   valid  |  invalid  |  132192  |   84.13549052304637  |
+ invalid  |    valid  |       0  |                   0  |
+ invalid  |  invalid  |     858  |  0.5460863809366209  |
+```
+
+## Book Entity Shape
+
+| 필드 | 결정 | 이유                                                      |
+| --- | --- |---------------------------------------------------------|
+| `id` | sequence, allocationSize 1000 | JPA batch insert 기준으로 유리함. JDBC/COPY 실험에서는 별도 id 전략 고려. |
+| `isbn13` | `varchar(13)`, unique | ISBN-13을 unique로 사용하되, 데이터에 잘못된 isbn때문에 nullable하게 둠.   |
+| `volumeTitle` | `varchar(50)` | 권차/권호 정보. CSV max length 20이라 50이면 충분.                  |
+| `title` | `varchar(500)`, required | 제목 검색/표시 핵심 필드.                                         |
+| `authorName` | `varchar(1000)` | 저자 문자열은 정규화하지 않고 원문 보존.                                 |
+| `publisherName` | `varchar(255)` | 출판사 문자열은 정규화하지 않고 원문 보존.                                |
+| `publishedDate` | `LocalDate` | 값이 있는 `TWO_PBLICTE_DE`를 사용.                             |
+| `price` | `BigDecimal(10, 2)` | 가격.                                                     |
+| `imageUrl` | `TEXT` | URL 길이를 고정 길이로 빡빡하게 제한하지 않음.                            |
+| `description` | `TEXT` | 책 소개. 검색/RAG context 후보.                                |
+| `kdcCode` | `varchar(20)` | KDC는 분류 코드 성격의 문자열로 보관.                                 |
+| `embedding` | `vector(1024)` | 책 1권당 대표 검색 벡터 1개를 저장.                                  |
+| `createdAt`, `updatedAt` | `OffsetDateTime` | 저장/수정 시각 추적.                                            |
+
+## Excluded
+
+- `SEQ_NO(sourceSeqNo)`: 원본 row 순번이라 Book 도메인 id로 쓰지 않음.
+- `ISBN_NO(isbn10)`: 저장하지 않음. 입력/검색 시 ISBN-13으로 변환.
+- `PBLICTE_DE(firstPublishedDate)`: `PBLICTE_DE`가 비어 있어 제외.
+- `ADTION_SMBL_NM(adtionSymbol)`: ISBN 부가기호 성격이라 현재 검색 모델에서 제외.
+- `TITLE_SBST_NM(titleSubtitle)`: 실제 subtitle이 아니라 검색용 정규화 파생값으로 보고 제외.
+- `AUTHR_SBST_NM(authorSubtitle)`: 실제 subtitle이 아니라 검색용 정규화 파생값으로 보고 제외.
+- 포털/인터넷서점 노출 여부: 현재 검색/표시 핵심 필드가 아니라 제외.
+
+## Rules
+
+- raw CSV DTO와 Book 엔티티는 분리해 사용.
+- ISBN은 저장 전에 ISBN-13으로 정규화. 변환/검증 실패 시 `null`.
+- CSV 프로파일링에서는 모든 컬럼을 문자열로 읽고, 날짜/가격/ISBN 변환 가능 여부는 별도 검사로 측정.
+
+## Java Profile Code
+
+- `BookCsvProfileTest`에서 Tablesaw로 CSV를 읽고 summary/column profile을 로그로 확인.
+- `-Dcsv.profile=true`를 줄 때만 실행되게 해서 일반 테스트 흐름과 분리.
+- `BookCsvParser`는 실제 import 실험용으로 row 단위 순회 구조 유지.

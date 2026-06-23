@@ -24,8 +24,8 @@ public class GlobalExceptionHandler {
     // 너무 많아지면 분리
     private HttpStatus statusOf(ErrorCode errorCode) {
         return switch (errorCode) {
-            case INVALID_ISBN -> HttpStatus.BAD_REQUEST;
-            case INTERNAL_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
+            case INVALID_ISBN, INVALID_BOOK_CSV -> HttpStatus.BAD_REQUEST;
+            default -> HttpStatus.INTERNAL_SERVER_ERROR;
         };
     }
 }

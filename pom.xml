@@ -73,6 +73,12 @@
             <version>1.14.1</version>
         </dependency>
         <dependency>
+            <groupId>tech.tablesaw</groupId>
+            <artifactId>tablesaw-core</artifactId>
+            <version>0.44.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>io.github.openfeign.querydsl</groupId>
             <artifactId>querydsl-apt</artifactId>
             <version>7.1</version>

@@ -22,6 +22,14 @@ public enum ErrorCode {
             "BOOK_001",
             "올바르지 않은 ISBN입니다."
     ),
+    INVALID_BOOK_CSV(
+            "BOOK_002",
+            "도서 CSV 형식이 올바르지 않습니다."
+    ),
+    BOOK_CSV_READ_FAILED(
+            "BOOK_003",
+            "도서 CSV 파일을 읽는 중 오류가 발생했습니다."
+    ),
 
     // 500 Internal Server Error
     INTERNAL_ERROR(

@@ -45,7 +45,7 @@ public class Book {
     )
     private Long id;
 
-    @Column(name = "isbn13", length = 13, nullable = false)
+    @Column(name = "isbn13", length = 13) // 올바르지 않은 ISBN을 거르기 위해 null 허용
     private String isbn13;
 
     @Column(name = "volume_title", length = 50)

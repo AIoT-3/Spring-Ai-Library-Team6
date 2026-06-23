@@ -7,7 +7,7 @@ row 수: 157,118건
 
 ```
 ❯ ./mvnw -q -Dcsv.profile=true -Dtest=BookCsvProfileTest test
-11:10:25.287 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.csv.BookCsvProfileTest -- 
+16:51:01.139 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.csv.BookCsvProfileTest -- 
               Book CSV 요약               
     metric      |        value         |
 ----------------------------------------
@@ -16,7 +16,7 @@ row 수: 157,118건
        columns  |                  18  |
  headerMatches  |                true  |
 
-11:10:25.772 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.csv.BookCsvProfileTest -- 
+16:51:01.370 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.csv.BookCsvProfileTest -- 
                                   Book CSV Column 분석                                  
           column            |  filled  |  missing  |       fillRate       |  unique  |
 --------------------------------------------------------------------------------------
@@ -39,7 +39,7 @@ row 수: 157,118건
   PORTAL_SITE_BOOK_EXST_AT  |  154554  |     2564  |    98.3681055003246  |       1  |
                    ISBN_NO  |  100516  |    56602  |   63.97484693033262  |  100516  |
 
-11:10:26.160 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.csv.BookCsvProfileTest -- 
+16:51:01.555 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.csv.BookCsvProfileTest -- 
                     Book CSV ISBN 분석                     
  isbn13   |  isbn10   |  count   |         rate         |
 ---------------------------------------------------------
@@ -47,6 +47,83 @@ row 수: 157,118건
    valid  |  invalid  |  132192  |   84.13549052304637  |
  invalid  |    valid  |       0  |                   0  |
  invalid  |  invalid  |     858  |  0.5460863809366209  |
+
+16:51:01.617 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.csv.BookCsvProfileTest -- 
+                Book CSV Price 분석                 
+   status    |  count   |          rate          |
+--------------------------------------------------
+      blank  |   45724  |    29.101694268002394  |
+    integer  |  111330  |     70.85757201593707  |
+ nonInteger  |      64  |  0.040733716060540485  |
+
+16:51:01.647 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.csv.BookCsvProfileTest -- 
+Book CSV Non-Integer Price Rows
+  seqNo   |    price    |
+-------------------------
+ 6356278  |   10590.00  |
+ 6356289  |   10410.00  |
+ 6356290  |   10470.00  |
+ 6358071  |   12220.00  |
+ 6362060  |   10600.00  |
+ 6362465  |   17420.00  |
+  146131  |       3.95  |
+  867429  |    3800.00  |
+ 6363294  |   18980.00  |
+ 1062410  |    8000.00  |
+ 1064463  |   58000.00  |
+ 1116240  |       3.99  |
+ 1116250  |       3.99  |
+ 1163573  |   15000.00  |
+ 1181423  |      25.50  |
+ 1414293  |       8.95  |
+ 1788617  |      15.00  |
+ 1232072  |   10000.00  |
+ 2660058  |   10000.00  |
+ 2039612  |   26000.00  |
+ 2039644  |   28000.00  |
+ 2042766  |   32000.00  |
+ 5119964  |   25000.00  |
+ 2090898  |   22000.00  |
+ 2323761  |   49370.00  |
+ 2325210  |   45000.00  |
+ 2325211  |   32000.00  |
+ 2340357  |   80340.00  |
+ 2644870  |   10950.00  |
+ 2644879  |   35670.00  |
+ 3356116  |   19190.00  |
+ 2777558  |   15000.00  |
+ 2777559  |   15000.00  |
+ 2777561  |   15000.00  |
+ 3572576  |   18540.00  |
+ 2911850  |   43190.00  |
+ 3580806  |   14750.00  |
+ 3596866  |  241020.00  |
+ 2650371  |   15000.00  |
+ 2777170  |   15000.00  |
+ 2777189  |   15000.00  |
+ 2777184  |   15000.00  |
+ 2777168  |   15000.00  |
+ 2777163  |   15000.00  |
+ 2777179  |   15000.00  |
+ 1119278  |   46000.00  |
+ 2777181  |   15000.00  |
+ 2777176  |   15000.00  |
+ 2777171  |   15000.00  |
+ 2777172  |   15000.00  |
+ 2777166  |   15000.00  |
+ 2777161  |   15000.00  |
+ 2777164  |   15000.00  |
+ 2777182  |   15000.00  |
+ 2777158  |   15000.00  |
+ 2777183  |   15000.00  |
+ 2777180  |   15000.00  |
+ 2777162  |   15000.00  |
+ 2777173  |   15000.00  |
+ 6365639  |   21210.00  |
+ 6365832  |   35430.00  |
+ 6365878  |   10410.00  |
+ 6367781  |   23640.00  |
+ 6370530  |   14760.00  |
 ```
 
 ## Book Entity Shape
@@ -60,7 +137,7 @@ row 수: 157,118건
 | `authorName` | `varchar(1000)` | 저자 문자열은 정규화하지 않고 원문 보존.                                 |
 | `publisherName` | `varchar(255)` | 출판사 문자열은 정규화하지 않고 원문 보존.                                |
 | `publishedDate` | `LocalDate` | 값이 있는 `TWO_PBLICTE_DE`를 사용.                             |
-| `price` | `BigDecimal(10, 2)` | 가격.                                                     |
+| `price` | `BigDecimal(10, 2)` | 가격. 소수점 2자리까지 있는 경우가 존재해 BigDecimal 사용.                 |
 | `imageUrl` | `TEXT` | URL 길이를 고정 길이로 빡빡하게 제한하지 않음.                            |
 | `description` | `TEXT` | 책 소개. 검색/RAG context 후보.                                |
 | `kdcCode` | `varchar(20)` | KDC는 분류 코드 성격의 문자열로 보관.                                 |

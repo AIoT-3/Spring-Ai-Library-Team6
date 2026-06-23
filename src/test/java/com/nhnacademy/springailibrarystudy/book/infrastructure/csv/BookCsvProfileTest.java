@@ -35,6 +35,8 @@ class BookCsvProfileTest {
         log.info("\n{}\n", summary(table).printAll());
         log.info("\n{}\n", columnProfile(table).printAll());
         log.info("\n{}\n", isbnProfile(table).printAll());
+        log.info("\n{}\n", priceProfile(table).printAll());
+        log.info("\n{}\n", nonIntegerPriceRows(table).printAll());
     }
 
     // 모든 컬럼을 STRING 타입으로 읽도록 설정
@@ -144,5 +146,76 @@ class BookCsvProfileTest {
         isbn10Status.append(isbn10);
         count.append(categoryCount);
         rate.append(totalCount == 0 ? 0.0 : categoryCount * 100.0 / totalCount);
+    }
+
+    // 가격 컬럼이 정수로만 구성되어 있는지 확인
+    private Table priceProfile(Table table) {
+        int blankCount = 0;
+        int integerCount = 0;
+        int nonIntegerCount = 0;
+
+        Column<?> priceColumn = table.column(BookCsvHeader.PRC_VALUE.name());
+
+        for (int row = 0; row < table.rowCount(); row++) {
+            String price = priceColumn.getString(row);
+            if (price == null || price.isBlank()) {
+                blankCount++;
+                continue;
+            }
+
+            String compacted = price.strip().replace(",", "");
+            if (compacted.matches("\\d+")) {
+                integerCount++;
+            } else {
+                nonIntegerCount++;
+            }
+        }
+
+        StringColumn status = StringColumn.create("status");
+        IntColumn count = IntColumn.create("count");
+        DoubleColumn rate = DoubleColumn.create("rate");
+
+        appendPriceProfileRow(status, count, rate, "blank", blankCount, table.rowCount());
+        appendPriceProfileRow(status, count, rate, "integer", integerCount, table.rowCount());
+        appendPriceProfileRow(status, count, rate, "nonInteger", nonIntegerCount, table.rowCount());
+
+        return Table.create("Book CSV Price 분석", status, count, rate);
+    }
+
+    private void appendPriceProfileRow(
+            StringColumn status,
+            IntColumn count,
+            DoubleColumn rate,
+            String priceStatus,
+            int categoryCount,
+            int totalCount
+    ) {
+        status.append(priceStatus);
+        count.append(categoryCount);
+        rate.append(totalCount == 0 ? 0.0 : categoryCount * 100.0 / totalCount);
+    }
+
+    // 가격 컬럼이 정수가 아닌 행만 추출
+    private Table nonIntegerPriceRows(Table table) {
+        StringColumn seqNo = StringColumn.create("seqNo");
+        StringColumn price = StringColumn.create("price");
+
+        Column<?> seqNoColumn = table.column(BookCsvHeader.SEQ_NO.name());
+        Column<?> priceColumn = table.column(BookCsvHeader.PRC_VALUE.name());
+
+        for (int row = 0; row < table.rowCount(); row++) {
+            String rawPrice = priceColumn.getString(row);
+            if (rawPrice == null || rawPrice.isBlank()) {
+                continue;
+            }
+
+            String compacted = rawPrice.strip().replace(",", "");
+            if (!compacted.matches("\\d+")) {
+                seqNo.append(seqNoColumn.getString(row));
+                price.append(rawPrice);
+            }
+        }
+
+        return Table.create("Book CSV Non-Integer Price Rows", seqNo, price);
     }
 }

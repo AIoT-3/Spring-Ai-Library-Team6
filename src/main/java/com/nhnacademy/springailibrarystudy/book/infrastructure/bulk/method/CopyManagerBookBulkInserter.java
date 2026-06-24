@@ -104,7 +104,7 @@ public class CopyManagerBookBulkInserter implements BookBulkInserter {
         }
     }
 
-    //
+    // COPY는 tab으로 구분된 텍스트를 사용하므로, 각 컬럼을 tab으로 join하고 null은 \N으로 변환
     private String toCopyLine(BookInsertRow row) {
         return String.join("\t",
                 copyValue(row.isbn13()),

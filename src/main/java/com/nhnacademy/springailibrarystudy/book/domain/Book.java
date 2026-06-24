@@ -1,7 +1,6 @@
 package com.nhnacademy.springailibrarystudy.book.domain;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,8 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(
@@ -43,6 +41,7 @@ public class Book {
             sequenceName = "book_sequence",
             allocationSize = 1000
     )
+    @ColumnDefault("nextval('book_sequence')")
     private Long id;
 
     @Column(name = "isbn13", length = 13) // 올바르지 않은 ISBN을 거르기 위해 null 허용
@@ -75,20 +74,13 @@ public class Book {
     @Column(name = "kdc_code", length = 20)
     private String kdcCode;
 
-    @Convert(converter = VectorConverter.class)
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(name = "embedding", columnDefinition = "vector(1024)")
-    private float[] embedding;
-
+    @ColumnDefault("current_timestamp")
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
-    @Column(name = "updated_at")
+    @ColumnDefault("current_timestamp")
+    @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
-
-    public void updateEmbedding(float[] embedding) {
-        this.embedding = embedding;
-    }
 
     @PrePersist
     protected void onCreate() {

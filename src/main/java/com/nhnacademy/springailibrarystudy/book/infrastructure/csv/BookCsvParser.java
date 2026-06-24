@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -19,20 +22,35 @@ public final class BookCsvParser {
     }
 
     public static void parse(Path path, Consumer<BookCsvRow> consumer) {
+        parseWhile(path, row -> {
+            consumer.accept(row);
+            return true;
+        });
+    }
+
+    public static void parseWhile(Path path, BookCsvRowHandler rowHandler) {
         try (
                 Reader reader = Files.newBufferedReader(path);
                 CSVParser parser = CSVFormat.DEFAULT.parse(reader)
         ) {
-            boolean headerChecked = false;
+            Iterator<CSVRecord> records = parser.iterator();
+            if (!records.hasNext()) {
+                throw new BusinessException(ErrorCode.INVALID_BOOK_CSV);
+            }
 
-            for (CSVRecord csvRecord : parser) {
-                if (!headerChecked) {
-                    BookCsvRow.validateHeaders(csvRecord.toList());
-                    headerChecked = true;
-                    continue;
+            List<String> headers = records.next().toList();
+            if (!headers.isEmpty() && headers.getFirst().startsWith("\uFEFF")) {
+                headers = new ArrayList<>(headers);
+                headers.set(0, headers.get(0).substring(1));
+            }
+            BookCsvRow.validateHeaders(headers);
+
+            // 데이터 행 처리
+            while (records.hasNext()) {
+                CSVRecord csvRecord = records.next();
+                if (!rowHandler.handle(BookCsvRow.from(csvRecord))) {
+                    break;
                 }
-
-                consumer.accept(BookCsvRow.from(csvRecord));
             }
 
         } catch (IOException e) {

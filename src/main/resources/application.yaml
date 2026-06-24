@@ -1,3 +1,20 @@
 spring:
   application:
     name: spring-ai-library-study
+  config:
+    import:
+      - optional:file:../spring-ai-library-study/.env[.properties]
+  ai:
+    model:
+      chat: ollama
+      embedding: ollama
+    ollama:
+      base-url: ${OLLAMA_URL}
+      chat:
+        model: qwen2.5:latest
+      embedding:
+        model: bge-m3
+    vectorstore:
+      pgvector:
+        dimensions: 1024
+        initialize-schema: false

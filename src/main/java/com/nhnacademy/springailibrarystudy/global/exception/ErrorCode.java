@@ -30,6 +30,10 @@ public enum ErrorCode {
             "BOOK_003",
             "도서 CSV 파일을 읽는 중 오류가 발생했습니다."
     ),
+    INVALID_BULK_INSERT_OPTIONS(
+            "BOOK_004",
+            "도서 대량 적재 옵션이 올바르지 않습니다."
+    ),
 
     // 500 Internal Server Error
     INTERNAL_ERROR(

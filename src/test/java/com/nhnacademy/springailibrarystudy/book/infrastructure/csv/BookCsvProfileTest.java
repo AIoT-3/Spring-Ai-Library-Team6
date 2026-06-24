@@ -2,7 +2,6 @@ package com.nhnacademy.springailibrarystudy.book.infrastructure.csv;
 
 import com.nhnacademy.springailibrarystudy.book.domain.IsbnNormalizer;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import tech.tablesaw.api.ColumnType;
@@ -18,15 +17,13 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 @Slf4j
+@Tag("analysis")
 class BookCsvProfileTest {
 
     private static final Path CSV_PATH = Path.of("src/main/resources/data/BOOK_DB_202112.csv");
 
-    @Tag("analysis")
     @Test
     void profileBookCsv() {
-        Assumptions.assumeTrue(Boolean.getBoolean("csv.profile"));
-
         Table table = Table.read().usingOptions(CsvReadOptions.builder(CSV_PATH.toString())
                 .header(true)
                 .columnTypes(stringColumnTypes())
@@ -71,6 +68,7 @@ class BookCsvProfileTest {
         IntColumn missing = IntColumn.create("missing");
         DoubleColumn fillRateColumn = DoubleColumn.create("fillRate");
         IntColumn unique = IntColumn.create("unique");
+        IntColumn maxLength = IntColumn.create("maxLength");
 
         for (Column<?> column : table.columns()) {
             int missingCount = column.countMissing();
@@ -82,10 +80,22 @@ class BookCsvProfileTest {
             missing.append(missingCount);
             fillRateColumn.append(fillRate);
             unique.append(column.removeMissing().countUnique()); // 고유 값 수 계산 (누락된 값 제외)
+            maxLength.append(maxLength(column)); // 최대 길이 계산 (누락된 값 제외)
         }
 
         return Table.create("Book CSV Column 분석",
-                columnName, filled, missing, fillRateColumn, unique);
+                columnName, filled, missing, fillRateColumn, unique, maxLength);
+    }
+
+    private int maxLength(Column<?> column) {
+        int maxLength = 0;
+        for (int row = 0; row < column.size(); row++) {
+            String value = column.getString(row);
+            if (value != null) {
+                maxLength = Math.max(maxLength, value.length());
+            }
+        }
+        return maxLength;
     }
 
     // ISBN-13, ISBN-10 유효성 조합별 건수 집계

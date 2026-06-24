@@ -1,13 +1,13 @@
 # 2026-06-23 Book Data Profile And Entity Decisions
 
-대상 파일: `src/main/resources/data/BOOK_DB_202112.csv`  
+대상 파일: `src/main/resources/data/BOOK_DB_202112.csv`
+실행 파일: `BookCsvProfileTest.java`
 row 수: 157,118건
 
 ## CSV 분석 결과
 
 ```
-❯ ./mvnw -q -Dcsv.profile=true -Dtest=BookCsvProfileTest test
-16:51:01.139 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.csv.BookCsvProfileTest -- 
+2026-06-24T13:58:09.315+09:00  INFO 22982 --- [spring-ai-library-study] [           main] c.n.s.b.i.csv.BookCsvProfileTest         : 
               Book CSV 요약               
     metric      |        value         |
 ----------------------------------------
@@ -16,30 +16,30 @@ row 수: 157,118건
        columns  |                  18  |
  headerMatches  |                true  |
 
-16:51:01.370 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.csv.BookCsvProfileTest -- 
-                                  Book CSV Column 분석                                  
-          column            |  filled  |  missing  |       fillRate       |  unique  |
---------------------------------------------------------------------------------------
-                    SEQ_NO  |  157118  |        0  |                 100  |  157118  |
-          ISBN_THIRTEEN_NO  |  157118  |        0  |                 100  |  157118  |
-                    VLM_NM  |   39708  |   117410  |   25.27272495831159  |    1738  |
-                  TITLE_NM  |  157118  |        0  |                 100  |  120804  |
-                  AUTHR_NM  |  157039  |       79  |   99.94971931923777  |   94882  |
-              PUBLISHER_NM  |  151577  |     5541  |   96.47335123919602  |   20981  |
-                PBLICTE_DE  |       0  |   157118  |                   0  |       0  |
-            ADTION_SMBL_NM  |  129589  |    27529  |   82.47877391514658  |    2123  |
-                 PRC_VALUE  |  111394  |    45724  |   70.89830573199761  |    4342  |
-                 IMAGE_URL  |   98337  |    58781  |    62.5879911913339  |   98331  |
-            BOOK_INTRCN_CN  |   84205  |    72913  |  53.593477513715804  |   74372  |
-                    KDC_NM  |  143057  |    14061  |   91.05067528863657  |    9199  |
-             TITLE_SBST_NM  |  148739  |     8379  |   94.66706551763643  |  110233  |
-             AUTHR_SBST_NM  |  149217  |     7901  |   94.97129545946359  |   85851  |
-            TWO_PBLICTE_DE  |  103518  |    53600  |   65.88551279929735  |    9885  |
- INTNT_BOOKST_BOOK_EXST_AT  |  154554  |     2564  |    98.3681055003246  |       1  |
-  PORTAL_SITE_BOOK_EXST_AT  |  154554  |     2564  |    98.3681055003246  |       1  |
-                   ISBN_NO  |  100516  |    56602  |   63.97484693033262  |  100516  |
+2026-06-24T13:58:09.623+09:00  INFO 22982 --- [spring-ai-library-study] [           main] c.n.s.b.i.csv.BookCsvProfileTest         : 
+                                         Book CSV Column 분석                                         
+          column            |  filled  |  missing  |       fillRate       |  unique  |  maxLength  |
+----------------------------------------------------------------------------------------------------
+                    SEQ_NO  |  157118  |        0  |                 100  |  157118  |          7  |
+          ISBN_THIRTEEN_NO  |  157118  |        0  |                 100  |  157118  |         13  |
+                    VLM_NM  |   39708  |   117410  |   25.27272495831159  |    1738  |         20  |
+                  TITLE_NM  |  157118  |        0  |                 100  |  120804  |        313  |
+                  AUTHR_NM  |  157039  |       79  |   99.94971931923777  |   94882  |        750  |
+              PUBLISHER_NM  |  151577  |     5541  |   96.47335123919602  |   20981  |        137  |
+                PBLICTE_DE  |       0  |   157118  |                   0  |       0  |          0  |
+            ADTION_SMBL_NM  |  129589  |    27529  |   82.47877391514658  |    2123  |          5  |
+                 PRC_VALUE  |  111394  |    45724  |   70.89830573199761  |    4342  |          9  |
+                 IMAGE_URL  |   98337  |    58781  |    62.5879911913339  |   98331  |        134  |
+            BOOK_INTRCN_CN  |   84205  |    72913  |  53.593477513715804  |   74372  |        384  |
+                    KDC_NM  |  143057  |    14061  |   91.05067528863657  |    9199  |         14  |
+             TITLE_SBST_NM  |  148739  |     8379  |   94.66706551763643  |  110233  |        254  |
+             AUTHR_SBST_NM  |  149217  |     7901  |   94.97129545946359  |   85851  |        593  |
+            TWO_PBLICTE_DE  |  103518  |    53600  |   65.88551279929735  |    9885  |         10  |
+ INTNT_BOOKST_BOOK_EXST_AT  |  154554  |     2564  |    98.3681055003246  |       1  |          1  |
+  PORTAL_SITE_BOOK_EXST_AT  |  154554  |     2564  |    98.3681055003246  |       1  |          1  |
+                   ISBN_NO  |  100516  |    56602  |   63.97484693033262  |  100516  |         41  |
 
-16:51:01.555 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.csv.BookCsvProfileTest -- 
+2026-06-24T13:58:09.833+09:00  INFO 22982 --- [spring-ai-library-study] [           main] c.n.s.b.i.csv.BookCsvProfileTest         : 
                     Book CSV ISBN 분석                     
  isbn13   |  isbn10   |  count   |         rate         |
 ---------------------------------------------------------
@@ -48,7 +48,7 @@ row 수: 157,118건
  invalid  |    valid  |       0  |                   0  |
  invalid  |  invalid  |     858  |  0.5460863809366209  |
 
-16:51:01.617 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.csv.BookCsvProfileTest -- 
+2026-06-24T13:58:09.877+09:00  INFO 22982 --- [spring-ai-library-study] [           main] c.n.s.b.i.csv.BookCsvProfileTest         : 
                 Book CSV Price 분석                 
    status    |  count   |          rate          |
 --------------------------------------------------
@@ -56,7 +56,7 @@ row 수: 157,118건
     integer  |  111330  |     70.85757201593707  |
  nonInteger  |      64  |  0.040733716060540485  |
 
-16:51:01.647 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.csv.BookCsvProfileTest -- 
+2026-06-24T13:58:09.905+09:00  INFO 22982 --- [spring-ai-library-study] [           main] c.n.s.b.i.csv.BookCsvProfileTest         : 
 Book CSV Non-Integer Price Rows
   seqNo   |    price    |
 -------------------------

@@ -1,0 +1,1089 @@
+14:15:45.723 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- book row count 확인 시작
+14:15:46.490 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- book row count 확인 완료: 157118
+14:15:46.491 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- 후보 인덱스 제거 시작
+14:15:46.781 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- 후보 인덱스 제거 완료
+14:15:46.781 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- baseline analyze 시작
+14:21:21.545 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+==================== baseline ====================
+14:21:21.547 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- baseline / isbn-exact-content explain 시작
+14:21:21.579 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- baseline / isbn-exact-content ---
+Limit  (cost=8.45..8.45 rows=1 width=189) (actual time=2.326..2.327 rows=0 loops=1)
+  Buffers: shared hit=6
+  ->  Sort  (cost=8.45..8.45 rows=1 width=189) (actual time=2.325..2.325 rows=0 loops=1)
+        Sort Key: id
+        Sort Method: quicksort  Memory: 25kB
+        Buffers: shared hit=6
+        ->  Index Scan using uk_books_isbn13 on books  (cost=0.42..8.44 rows=1 width=189) (actual time=1.898..1.899 rows=0 loops=1)
+              Index Cond: ((isbn13)::text = '9788968481475'::text)
+              Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=173
+Planning Time: 1.006 ms
+Execution Time: 2.388 ms
+14:21:21.579 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- baseline / isbn-exact-count explain 시작
+14:21:21.592 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- baseline / isbn-exact-count ---
+Aggregate  (cost=4.44..4.45 rows=1 width=8) (actual time=0.054..0.055 rows=1 loops=1)
+  Buffers: shared hit=3
+  ->  Index Only Scan using uk_books_isbn13 on books  (cost=0.42..4.44 rows=1 width=0) (actual time=0.053..0.053 rows=0 loops=1)
+        Index Cond: (isbn13 = '9788968481475'::text)
+        Heap Fetches: 0
+        Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=88
+Planning Time: 0.268 ms
+Execution Time: 0.098 ms
+14:21:21.592 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- baseline / kdc-prefix-content explain 시작
+14:21:21.689 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- baseline / kdc-prefix-content ---
+Limit  (cost=9752.37..9753.07 rows=6 width=189) (actual time=73.722..77.759 rows=20 loops=1)
+  Buffers: shared hit=8008
+  ->  Gather Merge  (cost=9752.37..9753.07 rows=6 width=189) (actual time=73.720..77.754 rows=20 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=8008
+        ->  Sort  (cost=8752.35..8752.35 rows=3 width=189) (actual time=66.227..66.228 rows=14 loops=3)
+              Sort Key: id
+              Sort Method: quicksort  Memory: 26kB
+              Buffers: shared hit=8008
+              Worker 0:  Sort Method: quicksort  Memory: 29kB
+              Worker 1:  Sort Method: top-N heapsort  Memory: 30kB
+              ->  Parallel Seq Scan on books  (cost=0.00..8752.32 rows=3 width=189) (actual time=8.403..66.127 rows=26 loops=3)
+                    Filter: ((kdc_code)::text ~~ '500%'::text)
+                    Rows Removed by Filter: 52346
+                    Buffers: shared hit=7934
+Planning:
+  Buffers: shared hit=159
+Planning Time: 0.800 ms
+Execution Time: 77.829 ms
+14:21:21.689 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- baseline / kdc-prefix-count explain 시작
+14:21:21.746 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- baseline / kdc-prefix-count ---
+Finalize Aggregate  (cost=9752.55..9752.56 rows=1 width=8) (actual time=30.805..33.882 rows=1 loops=1)
+  Buffers: shared hit=7934
+  ->  Gather  (cost=9752.33..9752.54 rows=2 width=8) (actual time=30.477..33.875 rows=3 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=7934
+        ->  Partial Aggregate  (cost=8752.33..8752.34 rows=1 width=8) (actual time=24.895..24.896 rows=1 loops=3)
+              Buffers: shared hit=7934
+              ->  Parallel Seq Scan on books  (cost=0.00..8752.32 rows=3 width=0) (actual time=1.494..24.879 rows=26 loops=3)
+                    Filter: ((kdc_code)::text ~~ '500%'::text)
+                    Rows Removed by Filter: 52346
+                    Buffers: shared hit=7934
+Planning:
+  Buffers: shared hit=74
+Planning Time: 0.488 ms
+Execution Time: 33.958 ms
+14:21:21.746 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- baseline / keyword-content explain 시작
+14:21:21.910 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- baseline / keyword-content ---
+Limit  (cost=0.42..1908.18 rows=20 width=189) (actual time=11.002..117.656 rows=20 loops=1)
+  Buffers: shared hit=3726
+  ->  Index Scan using books_pkey on books  (cost=0.42..14404.01 rows=151 width=189) (actual time=11.000..117.638 rows=20 loops=1)
+        Filter: ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text))
+        Rows Removed by Filter: 44496
+        Buffers: shared hit=3726
+Planning:
+  Buffers: shared hit=153
+Planning Time: 0.652 ms
+Execution Time: 117.698 ms
+14:21:21.910 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- baseline / keyword-count explain 시작
+14:21:22.056 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- baseline / keyword-count ---
+Finalize Aggregate  (cost=10571.02..10571.03 rows=1 width=8) (actual time=130.241..132.595 rows=1 loops=1)
+  Buffers: shared hit=7934
+  ->  Gather  (cost=10570.80..10571.01 rows=2 width=8) (actual time=130.226..132.587 rows=3 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=7934
+        ->  Partial Aggregate  (cost=9570.80..9570.81 rows=1 width=8) (actual time=126.677..126.678 rows=1 loops=3)
+              Buffers: shared hit=7934
+              ->  Parallel Seq Scan on books  (cost=0.00..9570.65 rows=63 width=0) (actual time=7.136..126.657 rows=18 loops=3)
+                    Filter: ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text))
+                    Rows Removed by Filter: 52355
+                    Buffers: shared hit=7934
+Planning:
+  Buffers: shared hit=70
+Planning Time: 0.368 ms
+Execution Time: 132.675 ms
+14:21:22.056 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- baseline / keyword-kdc-content explain 시작
+14:21:22.086 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- baseline / keyword-kdc-content ---
+Limit  (cost=10734.42..10734.43 rows=1 width=189) (actual time=17.162..19.213 rows=0 loops=1)
+  Buffers: shared hit=7937
+  ->  Sort  (cost=10734.42..10734.43 rows=1 width=189) (actual time=17.160..19.212 rows=0 loops=1)
+        Sort Key: id
+        Sort Method: quicksort  Memory: 25kB
+        Buffers: shared hit=7937
+        ->  Gather  (cost=1000.00..10734.41 rows=1 width=189) (actual time=17.146..19.197 rows=0 loops=1)
+              Workers Planned: 2
+              Workers Launched: 2
+              Buffers: shared hit=7934
+              ->  Parallel Seq Scan on books  (cost=0.00..9734.31 rows=1 width=189) (actual time=15.139..15.139 rows=0 loops=3)
+                    Filter: (((kdc_code)::text ~~ '500%'::text) AND ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text)))
+                    Rows Removed by Filter: 52373
+                    Buffers: shared hit=7934
+Planning:
+  Buffers: shared hit=156
+Planning Time: 0.419 ms
+Execution Time: 19.244 ms
+14:21:22.086 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- baseline / keyword-kdc-count explain 시작
+14:21:22.116 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- baseline / keyword-kdc-count ---
+Aggregate  (cost=10734.41..10734.42 rows=1 width=8) (actual time=16.484..19.116 rows=1 loops=1)
+  Buffers: shared hit=7934
+  ->  Gather  (cost=1000.00..10734.41 rows=1 width=0) (actual time=16.480..19.111 rows=0 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=7934
+        ->  Parallel Seq Scan on books  (cost=0.00..9734.31 rows=1 width=0) (actual time=14.481..14.481 rows=0 loops=3)
+              Filter: (((kdc_code)::text ~~ '500%'::text) AND ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text)))
+              Rows Removed by Filter: 52373
+              Buffers: shared hit=7934
+Planning:
+  Buffers: shared hit=74
+Planning Time: 0.225 ms
+Execution Time: 19.158 ms
+14:21:22.117 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- baseline / description-fts-content explain 시작
+14:21:23.120 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- baseline / description-fts-content ---
+Limit  (cost=26119.22..26119.23 rows=4 width=189) (actual time=974.574..977.545 rows=20 loops=1)
+  Buffers: shared hit=8161
+  ->  Sort  (cost=26119.22..26119.23 rows=4 width=189) (actual time=974.572..977.539 rows=20 loops=1)
+        Sort Key: id
+        Sort Method: quicksort  Memory: 30kB
+        Buffers: shared hit=8161
+        ->  Gather  (cost=1000.00..26119.18 rows=4 width=189) (actual time=53.729..977.459 rows=20 loops=1)
+              Workers Planned: 2
+              Workers Launched: 2
+              Buffers: shared hit=8158
+              ->  Parallel Seq Scan on books  (cost=0.00..25118.78 rows=2 width=189) (actual time=69.431..971.740 rows=7 loops=3)
+                    Filter: (to_tsvector('simple'::regconfig, COALESCE(description, ''::text)) @@ '''자바'' & ''프로그래밍'''::tsquery)
+                    Rows Removed by Filter: 52366
+                    Buffers: shared hit=8158
+Planning:
+  Buffers: shared hit=156 read=13
+Planning Time: 12.084 ms
+Execution Time: 977.587 ms
+14:21:23.121 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- baseline / description-fts-count explain 시작
+14:21:24.242 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- baseline / description-fts-count ---
+Finalize Aggregate  (cost=26119.00..26119.01 rows=1 width=8) (actual time=1102.707..1105.632 rows=1 loops=1)
+  Buffers: shared hit=8158
+  ->  Gather  (cost=26118.79..26119.00 rows=2 width=8) (actual time=1102.399..1105.597 rows=3 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=8158
+        ->  Partial Aggregate  (cost=25118.79..25118.80 rows=1 width=8) (actual time=1099.752..1099.753 rows=1 loops=3)
+              Buffers: shared hit=8158
+              ->  Parallel Seq Scan on books  (cost=0.00..25118.78 rows=2 width=0) (actual time=99.101..1099.729 rows=7 loops=3)
+                    Filter: (to_tsvector('simple'::regconfig, COALESCE(description, ''::text)) @@ '''자바'' & ''프로그래밍'''::tsquery)
+                    Rows Removed by Filter: 52366
+                    Buffers: shared hit=8158
+Planning:
+  Buffers: shared hit=86
+Planning Time: 0.673 ms
+Execution Time: 1105.755 ms
+14:21:24.242 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- 후보 인덱스 제거 시작
+14:21:24.301 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- 후보 인덱스 제거 완료
+14:21:24.301 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_kdc_code 생성 시작
+14:21:24.508 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_kdc_code 생성 완료
+14:21:24.508 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-btree analyze 시작
+14:26:02.813 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+==================== kdc-btree ====================
+14:26:02.814 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-btree / isbn-exact-content explain 시작
+14:26:02.829 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- kdc-btree / isbn-exact-content ---
+Limit  (cost=8.45..8.45 rows=1 width=189) (actual time=0.102..0.103 rows=0 loops=1)
+  Buffers: shared hit=6
+  ->  Sort  (cost=8.45..8.45 rows=1 width=189) (actual time=0.102..0.102 rows=0 loops=1)
+        Sort Key: id
+        Sort Method: quicksort  Memory: 25kB
+        Buffers: shared hit=6
+        ->  Index Scan using uk_books_isbn13 on books  (cost=0.42..8.44 rows=1 width=189) (actual time=0.089..0.089 rows=0 loops=1)
+              Index Cond: ((isbn13)::text = '9788968481475'::text)
+              Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=173 read=1
+Planning Time: 0.668 ms
+Execution Time: 0.145 ms
+14:26:02.829 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-btree / isbn-exact-count explain 시작
+14:26:02.836 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- kdc-btree / isbn-exact-count ---
+Aggregate  (cost=4.44..4.45 rows=1 width=8) (actual time=0.032..0.032 rows=1 loops=1)
+  Buffers: shared hit=3
+  ->  Index Only Scan using uk_books_isbn13 on books  (cost=0.42..4.44 rows=1 width=0) (actual time=0.029..0.030 rows=0 loops=1)
+        Index Cond: (isbn13 = '9788968481475'::text)
+        Heap Fetches: 0
+        Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=100
+Planning Time: 0.207 ms
+Execution Time: 0.062 ms
+14:26:02.836 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-btree / kdc-prefix-content explain 시작
+14:26:02.864 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- kdc-btree / kdc-prefix-content ---
+Limit  (cost=0.42..321.16 rows=20 width=189) (actual time=3.046..19.108 rows=20 loops=1)
+  Buffers: shared hit=4186
+  ->  Index Scan using books_pkey on books  (cost=0.42..12444.96 rows=776 width=189) (actual time=3.045..19.103 rows=20 loops=1)
+        Filter: ((kdc_code)::text ~~ '500%'::text)
+        Rows Removed by Filter: 50257
+        Buffers: shared hit=4186
+Planning:
+  Buffers: shared hit=175
+Planning Time: 0.993 ms
+Execution Time: 19.133 ms
+14:26:02.864 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-btree / kdc-prefix-count explain 시작
+14:26:02.879 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- kdc-btree / kdc-prefix-count ---
+Aggregate  (cost=3391.80..3391.81 rows=1 width=8) (actual time=8.784..8.784 rows=1 loops=1)
+  Buffers: shared hit=1 read=159
+  ->  Index Only Scan using idx_books_kdc_code on books  (cost=0.29..3389.86 rows=776 width=0) (actual time=3.533..8.775 rows=79 loops=1)
+        Filter: ((kdc_code)::text ~~ '500%'::text)
+        Rows Removed by Filter: 157039
+        Heap Fetches: 0
+        Buffers: shared hit=1 read=159
+Planning:
+  Buffers: shared hit=97
+Planning Time: 0.201 ms
+Execution Time: 8.820 ms
+14:26:02.879 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-btree / keyword-content explain 시작
+14:26:02.942 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- kdc-btree / keyword-content ---
+Limit  (cost=0.42..1908.83 rows=20 width=189) (actual time=3.894..56.645 rows=20 loops=1)
+  Buffers: shared hit=3726
+  ->  Index Scan using books_pkey on books  (cost=0.42..14408.94 rows=151 width=189) (actual time=3.892..56.640 rows=20 loops=1)
+        Filter: ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text))
+        Rows Removed by Filter: 44496
+        Buffers: shared hit=3726
+Planning:
+  Buffers: shared hit=166
+Planning Time: 0.255 ms
+Execution Time: 56.665 ms
+14:26:02.942 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-btree / keyword-count explain 시작
+14:26:03.044 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- kdc-btree / keyword-count ---
+Finalize Aggregate  (cost=10571.02..10571.03 rows=1 width=8) (actual time=91.889..95.613 rows=1 loops=1)
+  Buffers: shared hit=7934
+  ->  Gather  (cost=10570.80..10571.01 rows=2 width=8) (actual time=91.806..95.602 rows=3 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=7934
+        ->  Partial Aggregate  (cost=9570.80..9570.81 rows=1 width=8) (actual time=90.367..90.368 rows=1 loops=3)
+              Buffers: shared hit=7934
+              ->  Parallel Seq Scan on books  (cost=0.00..9570.65 rows=63 width=0) (actual time=2.450..90.358 rows=18 loops=3)
+                    Filter: ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text))
+                    Rows Removed by Filter: 52355
+                    Buffers: shared hit=7934
+Planning:
+  Buffers: shared hit=82
+Planning Time: 0.148 ms
+Execution Time: 95.660 ms
+14:26:03.044 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-btree / keyword-kdc-content explain 시작
+14:26:03.063 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- kdc-btree / keyword-kdc-content ---
+Limit  (cost=10734.42..10734.43 rows=1 width=189) (actual time=10.480..11.895 rows=0 loops=1)
+  Buffers: shared hit=7937
+  ->  Sort  (cost=10734.42..10734.43 rows=1 width=189) (actual time=10.479..11.893 rows=0 loops=1)
+        Sort Key: id
+        Sort Method: quicksort  Memory: 25kB
+        Buffers: shared hit=7937
+        ->  Gather  (cost=1000.00..10734.41 rows=1 width=189) (actual time=10.470..11.884 rows=0 loops=1)
+              Workers Planned: 2
+              Workers Launched: 2
+              Buffers: shared hit=7934
+              ->  Parallel Seq Scan on books  (cost=0.00..9734.31 rows=1 width=189) (actual time=9.363..9.364 rows=0 loops=3)
+                    Filter: (((kdc_code)::text ~~ '500%'::text) AND ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text)))
+                    Rows Removed by Filter: 52373
+                    Buffers: shared hit=7934
+Planning:
+  Buffers: shared hit=175
+Planning Time: 0.324 ms
+Execution Time: 11.914 ms
+14:26:03.063 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-btree / keyword-kdc-count explain 시작
+14:26:03.081 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- kdc-btree / keyword-kdc-count ---
+Aggregate  (cost=10734.41..10734.42 rows=1 width=8) (actual time=10.528..11.890 rows=1 loops=1)
+  Buffers: shared hit=7934
+  ->  Gather  (cost=1000.00..10734.41 rows=1 width=0) (actual time=10.526..11.887 rows=0 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=7934
+        ->  Parallel Seq Scan on books  (cost=0.00..9734.31 rows=1 width=0) (actual time=9.469..9.469 rows=0 loops=3)
+              Filter: (((kdc_code)::text ~~ '500%'::text) AND ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text)))
+              Rows Removed by Filter: 52373
+              Buffers: shared hit=7934
+Planning:
+  Buffers: shared hit=93
+Planning Time: 0.179 ms
+Execution Time: 11.916 ms
+14:26:03.081 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-btree / description-fts-content explain 시작
+14:26:03.640 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- kdc-btree / description-fts-content ---
+Limit  (cost=26119.22..26119.23 rows=4 width=189) (actual time=551.091..552.685 rows=20 loops=1)
+  Buffers: shared hit=8161
+  ->  Sort  (cost=26119.22..26119.23 rows=4 width=189) (actual time=551.090..552.682 rows=20 loops=1)
+        Sort Key: id
+        Sort Method: quicksort  Memory: 30kB
+        Buffers: shared hit=8161
+        ->  Gather  (cost=1000.00..26119.18 rows=4 width=189) (actual time=34.788..552.639 rows=20 loops=1)
+              Workers Planned: 2
+              Workers Launched: 2
+              Buffers: shared hit=8158
+              ->  Parallel Seq Scan on books  (cost=0.00..25118.78 rows=2 width=189) (actual time=27.208..549.893 rows=7 loops=3)
+                    Filter: (to_tsvector('simple'::regconfig, COALESCE(description, ''::text)) @@ '''자바'' & ''프로그래밍'''::tsquery)
+                    Rows Removed by Filter: 52366
+                    Buffers: shared hit=8158
+Planning:
+  Buffers: shared hit=182
+Planning Time: 0.429 ms
+Execution Time: 552.708 ms
+14:26:03.640 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-btree / description-fts-count explain 시작
+14:26:04.316 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- kdc-btree / description-fts-count ---
+Finalize Aggregate  (cost=26119.00..26119.01 rows=1 width=8) (actual time=666.989..668.825 rows=1 loops=1)
+  Buffers: shared hit=8158
+  ->  Gather  (cost=26118.79..26119.00 rows=2 width=8) (actual time=666.837..668.819 rows=3 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=8158
+        ->  Partial Aggregate  (cost=25118.79..25118.80 rows=1 width=8) (actual time=665.551..665.552 rows=1 loops=3)
+              Buffers: shared hit=8158
+              ->  Parallel Seq Scan on books  (cost=0.00..25118.78 rows=2 width=0) (actual time=36.171..665.540 rows=7 loops=3)
+                    Filter: (to_tsvector('simple'::regconfig, COALESCE(description, ''::text)) @@ '''자바'' & ''프로그래밍'''::tsquery)
+                    Rows Removed by Filter: 52366
+                    Buffers: shared hit=8158
+Planning:
+  Buffers: shared hit=98
+Planning Time: 0.308 ms
+Execution Time: 668.865 ms
+14:26:04.317 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- 후보 인덱스 제거 시작
+14:26:04.361 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- 후보 인덱스 제거 완료
+14:26:04.362 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_kdc_code_pattern 생성 시작
+14:26:04.452 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_kdc_code_pattern 생성 완료
+14:26:04.452 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-pattern analyze 시작
+14:30:02.399 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+==================== kdc-pattern ====================
+14:30:02.401 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-pattern / isbn-exact-content explain 시작
+14:30:02.418 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- kdc-pattern / isbn-exact-content ---
+Limit  (cost=8.45..8.45 rows=1 width=189) (actual time=0.140..0.141 rows=0 loops=1)
+  Buffers: shared hit=6
+  ->  Sort  (cost=8.45..8.45 rows=1 width=189) (actual time=0.139..0.139 rows=0 loops=1)
+        Sort Key: id
+        Sort Method: quicksort  Memory: 25kB
+        Buffers: shared hit=6
+        ->  Index Scan using uk_books_isbn13 on books  (cost=0.42..8.44 rows=1 width=189) (actual time=0.124..0.124 rows=0 loops=1)
+              Index Cond: ((isbn13)::text = '9788968481475'::text)
+              Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=185 read=1
+Planning Time: 1.135 ms
+Execution Time: 0.195 ms
+14:30:02.418 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-pattern / isbn-exact-count explain 시작
+14:30:02.427 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- kdc-pattern / isbn-exact-count ---
+Aggregate  (cost=4.44..4.45 rows=1 width=8) (actual time=0.048..0.048 rows=1 loops=1)
+  Buffers: shared hit=3
+  ->  Index Only Scan using uk_books_isbn13 on books  (cost=0.42..4.44 rows=1 width=0) (actual time=0.046..0.046 rows=0 loops=1)
+        Index Cond: (isbn13 = '9788968481475'::text)
+        Heap Fetches: 0
+        Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=105
+Planning Time: 0.324 ms
+Execution Time: 0.104 ms
+14:30:02.427 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-pattern / kdc-prefix-content explain 시작
+14:30:02.436 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- kdc-pattern / kdc-prefix-content ---
+Limit  (cost=8.44..8.46 rows=8 width=189) (actual time=0.996..0.999 rows=20 loops=1)
+  Buffers: shared hit=63 read=2
+  ->  Sort  (cost=8.44..8.46 rows=8 width=189) (actual time=0.995..0.996 rows=20 loops=1)
+        Sort Key: id
+        Sort Method: top-N heapsort  Memory: 30kB
+        Buffers: shared hit=63 read=2
+        ->  Index Scan using idx_books_kdc_code_pattern on books  (cost=0.29..8.32 rows=8 width=189) (actual time=0.091..0.945 rows=79 loops=1)
+              Index Cond: (((kdc_code)::text ~>=~ '500'::text) AND ((kdc_code)::text ~<~ '501'::text))
+              Filter: ((kdc_code)::text ~~ '500%'::text)
+              Buffers: shared hit=60 read=2
+Planning:
+  Buffers: shared hit=220
+Planning Time: 0.890 ms
+Execution Time: 1.025 ms
+14:30:02.436 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-pattern / kdc-prefix-count explain 시작
+14:30:02.443 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- kdc-pattern / kdc-prefix-count ---
+Aggregate  (cost=4.34..4.35 rows=1 width=8) (actual time=0.042..0.043 rows=1 loops=1)
+  Buffers: shared hit=3
+  ->  Index Only Scan using idx_books_kdc_code_pattern on books  (cost=0.29..4.32 rows=8 width=0) (actual time=0.025..0.034 rows=79 loops=1)
+        Index Cond: ((kdc_code ~>=~ '500'::text) AND (kdc_code ~<~ '501'::text))
+        Filter: ((kdc_code)::text ~~ '500%'::text)
+        Heap Fetches: 0
+        Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=136
+Planning Time: 0.360 ms
+Execution Time: 0.075 ms
+14:30:02.443 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-pattern / keyword-content explain 시작
+14:30:02.540 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- kdc-pattern / keyword-content ---
+Limit  (cost=0.42..1909.07 rows=20 width=189) (actual time=5.892..89.866 rows=20 loops=1)
+  Buffers: shared hit=3726
+  ->  Index Scan using books_pkey on books  (cost=0.42..14410.74 rows=151 width=189) (actual time=5.891..89.860 rows=20 loops=1)
+        Filter: ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text))
+        Rows Removed by Filter: 44496
+        Buffers: shared hit=3726
+Planning:
+  Buffers: shared hit=174
+Planning Time: 0.312 ms
+Execution Time: 89.896 ms
+14:30:02.540 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-pattern / keyword-count explain 시작
+14:30:02.697 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- kdc-pattern / keyword-count ---
+Finalize Aggregate  (cost=10571.02..10571.03 rows=1 width=8) (actual time=146.115..148.219 rows=1 loops=1)
+  Buffers: shared hit=7934
+  ->  Gather  (cost=10570.80..10571.01 rows=2 width=8) (actual time=146.006..148.211 rows=3 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=7934
+        ->  Partial Aggregate  (cost=9570.80..9570.81 rows=1 width=8) (actual time=143.526..143.526 rows=1 loops=3)
+              Buffers: shared hit=7934
+              ->  Parallel Seq Scan on books  (cost=0.00..9570.65 rows=63 width=0) (actual time=4.593..143.512 rows=18 loops=3)
+                    Filter: ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text))
+                    Rows Removed by Filter: 52355
+                    Buffers: shared hit=7934
+Planning:
+  Buffers: shared hit=87
+Planning Time: 0.289 ms
+Execution Time: 148.313 ms
+14:30:02.698 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-pattern / keyword-kdc-content explain 시작
+14:30:02.707 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- kdc-pattern / keyword-kdc-content ---
+Limit  (cost=8.34..8.35 rows=1 width=189) (actual time=0.500..0.501 rows=0 loops=1)
+  Buffers: shared hit=65
+  ->  Sort  (cost=8.34..8.35 rows=1 width=189) (actual time=0.499..0.499 rows=0 loops=1)
+        Sort Key: id
+        Sort Method: quicksort  Memory: 25kB
+        Buffers: shared hit=65
+        ->  Index Scan using idx_books_kdc_code_pattern on books  (cost=0.29..8.33 rows=1 width=189) (actual time=0.489..0.489 rows=0 loops=1)
+              Index Cond: (((kdc_code)::text ~>=~ '500'::text) AND ((kdc_code)::text ~<~ '501'::text))
+              Filter: (((kdc_code)::text ~~ '500%'::text) AND ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text)))
+              Rows Removed by Filter: 79
+              Buffers: shared hit=62
+Planning:
+  Buffers: shared hit=220
+Planning Time: 0.549 ms
+Execution Time: 0.526 ms
+14:30:02.707 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-pattern / keyword-kdc-count explain 시작
+14:30:02.716 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- kdc-pattern / keyword-kdc-count ---
+Aggregate  (cost=8.33..8.34 rows=1 width=8) (actual time=0.538..0.539 rows=1 loops=1)
+  Buffers: shared hit=62
+  ->  Index Scan using idx_books_kdc_code_pattern on books  (cost=0.29..8.33 rows=1 width=0) (actual time=0.536..0.537 rows=0 loops=1)
+        Index Cond: (((kdc_code)::text ~>=~ '500'::text) AND ((kdc_code)::text ~<~ '501'::text))
+        Filter: (((kdc_code)::text ~~ '500%'::text) AND ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text)))
+        Rows Removed by Filter: 79
+        Buffers: shared hit=62
+Planning:
+  Buffers: shared hit=136
+Planning Time: 0.352 ms
+Execution Time: 0.582 ms
+14:30:02.716 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-pattern / description-fts-content explain 시작
+14:30:03.629 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- kdc-pattern / description-fts-content ---
+Limit  (cost=26119.22..26119.23 rows=4 width=189) (actual time=899.934..903.557 rows=20 loops=1)
+  Buffers: shared hit=8161
+  ->  Sort  (cost=26119.22..26119.23 rows=4 width=189) (actual time=899.933..903.544 rows=20 loops=1)
+        Sort Key: id
+        Sort Method: quicksort  Memory: 30kB
+        Buffers: shared hit=8161
+        ->  Gather  (cost=1000.00..26119.18 rows=4 width=189) (actual time=133.299..903.501 rows=20 loops=1)
+              Workers Planned: 2
+              Workers Launched: 2
+              Buffers: shared hit=8158
+              ->  Parallel Seq Scan on books  (cost=0.00..25118.78 rows=2 width=189) (actual time=103.984..897.840 rows=7 loops=3)
+                    Filter: (to_tsvector('simple'::regconfig, COALESCE(description, ''::text)) @@ '''자바'' & ''프로그래밍'''::tsquery)
+                    Rows Removed by Filter: 52366
+                    Buffers: shared hit=8158
+Planning:
+  Buffers: shared hit=190
+Planning Time: 0.653 ms
+Execution Time: 903.592 ms
+14:30:03.629 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- kdc-pattern / description-fts-count explain 시작
+14:30:05.243 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- kdc-pattern / description-fts-count ---
+Finalize Aggregate  (cost=26119.00..26119.01 rows=1 width=8) (actual time=1560.308..1563.475 rows=1 loops=1)
+  Buffers: shared hit=8158
+  ->  Gather  (cost=26118.79..26119.00 rows=2 width=8) (actual time=1560.052..1563.466 rows=3 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=8158
+        ->  Partial Aggregate  (cost=25118.79..25118.80 rows=1 width=8) (actual time=1547.675..1547.675 rows=1 loops=3)
+              Buffers: shared hit=8158
+              ->  Parallel Seq Scan on books  (cost=0.00..25118.78 rows=2 width=0) (actual time=84.799..1547.649 rows=7 loops=3)
+                    Filter: (to_tsvector('simple'::regconfig, COALESCE(description, ''::text)) @@ '''자바'' & ''프로그래밍'''::tsquery)
+                    Rows Removed by Filter: 52366
+                    Buffers: shared hit=8158
+Planning:
+  Buffers: shared hit=103
+Planning Time: 0.828 ms
+Execution Time: 1563.542 ms
+14:30:05.243 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- 후보 인덱스 제거 시작
+14:30:05.309 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- 후보 인덱스 제거 완료
+14:30:05.310 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- pg_trgm extension 확인 시작
+14:30:05.320 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- pg_trgm extension 확인 완료
+14:30:05.321 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_title_trgm 생성 시작
+14:30:09.192 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_title_trgm 생성 완료
+14:30:09.193 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_author_name_trgm 생성 시작
+14:30:11.096 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_author_name_trgm 생성 완료
+14:30:11.096 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_publisher_name_trgm 생성 시작
+14:30:11.840 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_publisher_name_trgm 생성 완료
+14:30:11.840 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- keyword-trgm analyze 시작
+14:34:13.615 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+==================== keyword-trgm ====================
+14:34:13.616 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- keyword-trgm / isbn-exact-content explain 시작
+14:34:13.629 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- keyword-trgm / isbn-exact-content ---
+Limit  (cost=8.45..8.45 rows=1 width=189) (actual time=0.111..0.112 rows=0 loops=1)
+  Buffers: shared hit=6
+  ->  Sort  (cost=8.45..8.45 rows=1 width=189) (actual time=0.110..0.110 rows=0 loops=1)
+        Sort Key: id
+        Sort Method: quicksort  Memory: 25kB
+        Buffers: shared hit=6
+        ->  Index Scan using uk_books_isbn13 on books  (cost=0.42..8.44 rows=1 width=189) (actual time=0.096..0.097 rows=0 loops=1)
+              Index Cond: ((isbn13)::text = '9788968481475'::text)
+              Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=208
+Planning Time: 0.840 ms
+Execution Time: 0.153 ms
+14:34:13.629 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- keyword-trgm / isbn-exact-count explain 시작
+14:34:13.636 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- keyword-trgm / isbn-exact-count ---
+Aggregate  (cost=4.44..4.45 rows=1 width=8) (actual time=0.023..0.023 rows=1 loops=1)
+  Buffers: shared hit=3
+  ->  Index Only Scan using uk_books_isbn13 on books  (cost=0.42..4.44 rows=1 width=0) (actual time=0.022..0.022 rows=0 loops=1)
+        Index Cond: (isbn13 = '9788968481475'::text)
+        Heap Fetches: 0
+        Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=133
+Planning Time: 0.249 ms
+Execution Time: 0.056 ms
+14:34:13.636 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- keyword-trgm / kdc-prefix-content explain 시작
+14:34:13.669 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- keyword-trgm / kdc-prefix-content ---
+Limit  (cost=0.42..322.44 rows=20 width=189) (actual time=3.502..26.007 rows=20 loops=1)
+  Buffers: shared hit=4186
+  ->  Index Scan using books_pkey on books  (cost=0.42..12446.40 rows=773 width=189) (actual time=3.501..26.002 rows=20 loops=1)
+        Filter: ((kdc_code)::text ~~ '500%'::text)
+        Rows Removed by Filter: 50257
+        Buffers: shared hit=4186
+Planning:
+  Buffers: shared hit=201
+Planning Time: 0.493 ms
+Execution Time: 26.093 ms
+14:34:13.669 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- keyword-trgm / kdc-prefix-count explain 시작
+14:34:13.706 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- keyword-trgm / kdc-prefix-count ---
+Finalize Aggregate  (cost=9753.34..9753.35 rows=1 width=8) (actual time=28.127..29.853 rows=1 loops=1)
+  Buffers: shared hit=7934
+  ->  Gather  (cost=9753.13..9753.34 rows=2 width=8) (actual time=28.010..29.848 rows=3 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=7934
+        ->  Partial Aggregate  (cost=8753.13..8753.14 rows=1 width=8) (actual time=26.616..26.616 rows=1 loops=3)
+              Buffers: shared hit=7934
+              ->  Parallel Seq Scan on books  (cost=0.00..8752.32 rows=322 width=0) (actual time=0.837..26.606 rows=26 loops=3)
+                    Filter: ((kdc_code)::text ~~ '500%'::text)
+                    Rows Removed by Filter: 52346
+                    Buffers: shared hit=7934
+Planning:
+  Buffers: shared hit=120
+Planning Time: 0.286 ms
+Execution Time: 29.898 ms
+14:34:13.706 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- keyword-trgm / keyword-content explain 시작
+14:34:13.781 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- keyword-trgm / keyword-content ---
+Limit  (cost=1000.44..6914.29 rows=20 width=189) (actual time=64.691..66.265 rows=20 loops=1)
+  Buffers: shared hit=6272
+  ->  Gather Merge  (cost=1000.44..13123.82 rows=41 width=189) (actual time=64.689..66.261 rows=20 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=6272
+        ->  Parallel Index Scan using books_pkey on books  (cost=0.42..12119.07 rows=17 width=189) (actual time=3.461..38.787 rows=14 loops=3)
+              Filter: ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text))
+              Rows Removed by Filter: 23740
+              Buffers: shared hit=6272
+Planning:
+  Buffers: shared hit=227
+Planning Time: 1.193 ms
+Execution Time: 66.297 ms
+14:34:13.781 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- keyword-trgm / keyword-count explain 시작
+14:34:13.893 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- keyword-trgm / keyword-count ---
+Finalize Aggregate  (cost=10570.90..10570.91 rows=1 width=8) (actual time=100.982..102.716 rows=1 loops=1)
+  Buffers: shared hit=7934
+  ->  Gather  (cost=10570.69..10570.90 rows=2 width=8) (actual time=100.869..102.711 rows=3 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=7934
+        ->  Partial Aggregate  (cost=9570.69..9570.70 rows=1 width=8) (actual time=99.293..99.293 rows=1 loops=3)
+              Buffers: shared hit=7934
+              ->  Parallel Seq Scan on books  (cost=0.00..9570.65 rows=17 width=0) (actual time=4.154..99.266 rows=18 loops=3)
+                    Filter: ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text))
+                    Rows Removed by Filter: 52355
+                    Buffers: shared hit=7934
+Planning:
+  Buffers: shared hit=174
+Planning Time: 0.761 ms
+Execution Time: 102.770 ms
+14:34:13.893 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- keyword-trgm / keyword-kdc-content explain 시작
+14:34:13.916 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- keyword-trgm / keyword-kdc-content ---
+Limit  (cost=10734.42..10734.43 rows=1 width=189) (actual time=13.032..14.659 rows=0 loops=1)
+  Buffers: shared hit=7937
+  ->  Sort  (cost=10734.42..10734.43 rows=1 width=189) (actual time=13.031..14.657 rows=0 loops=1)
+        Sort Key: id
+        Sort Method: quicksort  Memory: 25kB
+        Buffers: shared hit=7937
+        ->  Gather  (cost=1000.00..10734.41 rows=1 width=189) (actual time=13.016..14.641 rows=0 loops=1)
+              Workers Planned: 2
+              Workers Launched: 2
+              Buffers: shared hit=7934
+              ->  Parallel Seq Scan on books  (cost=0.00..9734.31 rows=1 width=189) (actual time=11.371..11.372 rows=0 loops=3)
+                    Filter: (((kdc_code)::text ~~ '500%'::text) AND ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text)))
+                    Rows Removed by Filter: 52373
+                    Buffers: shared hit=7934
+Planning:
+  Buffers: shared hit=230
+Planning Time: 0.972 ms
+Execution Time: 14.687 ms
+14:34:13.916 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- keyword-trgm / keyword-kdc-count explain 시작
+14:34:13.939 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- keyword-trgm / keyword-kdc-count ---
+Aggregate  (cost=10734.41..10734.42 rows=1 width=8) (actual time=13.294..14.880 rows=1 loops=1)
+  Buffers: shared hit=7934
+  ->  Gather  (cost=1000.00..10734.41 rows=1 width=0) (actual time=13.291..14.877 rows=0 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=7934
+        ->  Parallel Seq Scan on books  (cost=0.00..9734.31 rows=1 width=0) (actual time=11.416..11.416 rows=0 loops=3)
+              Filter: (((kdc_code)::text ~~ '500%'::text) AND ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text)))
+              Rows Removed by Filter: 52373
+              Buffers: shared hit=7934
+Planning:
+  Buffers: shared hit=177
+Planning Time: 0.858 ms
+Execution Time: 14.914 ms
+14:34:13.939 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- keyword-trgm / description-fts-content explain 시작
+14:34:14.612 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- keyword-trgm / description-fts-content ---
+Limit  (cost=26119.22..26119.23 rows=4 width=189) (actual time=662.043..663.977 rows=20 loops=1)
+  Buffers: shared hit=8161
+  ->  Sort  (cost=26119.22..26119.23 rows=4 width=189) (actual time=662.042..663.973 rows=20 loops=1)
+        Sort Key: id
+        Sort Method: quicksort  Memory: 30kB
+        Buffers: shared hit=8161
+        ->  Gather  (cost=1000.00..26119.18 rows=4 width=189) (actual time=46.084..663.931 rows=20 loops=1)
+              Workers Planned: 2
+              Workers Launched: 2
+              Buffers: shared hit=8158
+              ->  Parallel Seq Scan on books  (cost=0.00..25118.78 rows=2 width=189) (actual time=36.243..660.534 rows=7 loops=3)
+                    Filter: (to_tsvector('simple'::regconfig, COALESCE(description, ''::text)) @@ '''자바'' & ''프로그래밍'''::tsquery)
+                    Rows Removed by Filter: 52366
+                    Buffers: shared hit=8158
+Planning:
+  Buffers: shared hit=214
+Planning Time: 0.587 ms
+Execution Time: 664.006 ms
+14:34:14.612 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- keyword-trgm / description-fts-count explain 시작
+14:34:15.317 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- keyword-trgm / description-fts-count ---
+Finalize Aggregate  (cost=26119.00..26119.01 rows=1 width=8) (actual time=694.808..696.850 rows=1 loops=1)
+  Buffers: shared hit=8158
+  ->  Gather  (cost=26118.79..26119.00 rows=2 width=8) (actual time=694.637..696.841 rows=3 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=8158
+        ->  Partial Aggregate  (cost=25118.79..25118.80 rows=1 width=8) (actual time=693.104..693.105 rows=1 loops=3)
+              Buffers: shared hit=8158
+              ->  Parallel Seq Scan on books  (cost=0.00..25118.78 rows=2 width=0) (actual time=85.910..693.093 rows=7 loops=3)
+                    Filter: (to_tsvector('simple'::regconfig, COALESCE(description, ''::text)) @@ '''자바'' & ''프로그래밍'''::tsquery)
+                    Rows Removed by Filter: 52366
+                    Buffers: shared hit=8158
+Planning:
+  Buffers: shared hit=132
+Planning Time: 0.430 ms
+Execution Time: 696.897 ms
+14:34:15.317 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- 후보 인덱스 제거 시작
+14:34:15.374 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- 후보 인덱스 제거 완료
+14:34:15.374 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_description_fts 생성 시작
+14:34:20.038 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_description_fts 생성 완료
+14:34:20.038 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- description-fts analyze 시작
+14:38:01.566 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+==================== description-fts ====================
+14:38:01.568 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- description-fts / isbn-exact-content explain 시작
+14:38:01.588 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- description-fts / isbn-exact-content ---
+Limit  (cost=8.45..8.45 rows=1 width=189) (actual time=0.170..0.170 rows=0 loops=1)
+  Buffers: shared hit=6
+  ->  Sort  (cost=8.45..8.45 rows=1 width=189) (actual time=0.168..0.169 rows=0 loops=1)
+        Sort Key: id
+        Sort Method: quicksort  Memory: 25kB
+        Buffers: shared hit=6
+        ->  Index Scan using uk_books_isbn13 on books  (cost=0.42..8.44 rows=1 width=189) (actual time=0.148..0.148 rows=0 loops=1)
+              Index Cond: ((isbn13)::text = '9788968481475'::text)
+              Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=181
+Planning Time: 1.091 ms
+Execution Time: 0.238 ms
+14:38:01.589 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- description-fts / isbn-exact-count explain 시작
+14:38:01.601 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- description-fts / isbn-exact-count ---
+Aggregate  (cost=4.44..4.45 rows=1 width=8) (actual time=0.044..0.045 rows=1 loops=1)
+  Buffers: shared hit=3
+  ->  Index Only Scan using uk_books_isbn13 on books  (cost=0.42..4.44 rows=1 width=0) (actual time=0.042..0.042 rows=0 loops=1)
+        Index Cond: (isbn13 = '9788968481475'::text)
+        Heap Fetches: 0
+        Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=109
+Planning Time: 0.439 ms
+Execution Time: 0.092 ms
+14:38:01.601 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- description-fts / kdc-prefix-content explain 시작
+14:38:01.702 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- description-fts / kdc-prefix-content ---
+Limit  (cost=9752.37..9753.07 rows=6 width=189) (actual time=82.530..85.909 rows=20 loops=1)
+  Buffers: shared hit=8008
+  ->  Gather Merge  (cost=9752.37..9753.07 rows=6 width=189) (actual time=82.528..85.905 rows=20 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=8008
+        ->  Sort  (cost=8752.35..8752.35 rows=3 width=189) (actual time=77.604..77.605 rows=12 loops=3)
+              Sort Key: id
+              Sort Method: quicksort  Memory: 30kB
+              Buffers: shared hit=8008
+              Worker 0:  Sort Method: quicksort  Memory: 28kB
+              Worker 1:  Sort Method: top-N heapsort  Memory: 30kB
+              ->  Parallel Seq Scan on books  (cost=0.00..8752.32 rows=3 width=189) (actual time=10.047..77.502 rows=26 loops=3)
+                    Filter: ((kdc_code)::text ~~ '500%'::text)
+                    Rows Removed by Filter: 52346
+                    Buffers: shared hit=7934
+Planning:
+  Buffers: shared hit=178
+Planning Time: 0.763 ms
+Execution Time: 86.029 ms
+14:38:01.702 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- description-fts / kdc-prefix-count explain 시작
+14:38:01.742 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- description-fts / kdc-prefix-count ---
+Finalize Aggregate  (cost=9752.55..9752.56 rows=1 width=8) (actual time=21.350..23.854 rows=1 loops=1)
+  Buffers: shared hit=7934
+  ->  Gather  (cost=9752.33..9752.54 rows=2 width=8) (actual time=21.205..23.846 rows=3 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=7934
+        ->  Partial Aggregate  (cost=8752.33..8752.34 rows=1 width=8) (actual time=17.330..17.330 rows=1 loops=3)
+              Buffers: shared hit=7934
+              ->  Parallel Seq Scan on books  (cost=0.00..8752.32 rows=3 width=0) (actual time=2.038..17.316 rows=26 loops=3)
+                    Filter: ((kdc_code)::text ~~ '500%'::text)
+                    Rows Removed by Filter: 52346
+                    Buffers: shared hit=7934
+Planning:
+  Buffers: shared hit=95
+Planning Time: 0.438 ms
+Execution Time: 24.010 ms
+14:38:01.742 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- description-fts / keyword-content explain 시작
+14:38:01.860 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- description-fts / keyword-content ---
+Limit  (cost=0.42..1908.41 rows=20 width=189) (actual time=6.689..106.979 rows=20 loops=1)
+  Buffers: shared hit=3726
+  ->  Index Scan using books_pkey on books  (cost=0.42..14405.71 rows=151 width=189) (actual time=6.688..106.964 rows=20 loops=1)
+        Filter: ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text))
+        Rows Removed by Filter: 44496
+        Buffers: shared hit=3726
+Planning:
+  Buffers: shared hit=175
+Planning Time: 0.450 ms
+Execution Time: 107.014 ms
+14:38:01.860 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- description-fts / keyword-count explain 시작
+14:38:01.996 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- description-fts / keyword-count ---
+Finalize Aggregate  (cost=10571.02..10571.03 rows=1 width=8) (actual time=123.406..125.272 rows=1 loops=1)
+  Buffers: shared hit=7934
+  ->  Gather  (cost=10570.80..10571.01 rows=2 width=8) (actual time=123.296..125.266 rows=3 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=7934
+        ->  Partial Aggregate  (cost=9570.80..9570.81 rows=1 width=8) (actual time=120.836..120.836 rows=1 loops=3)
+              Buffers: shared hit=7934
+              ->  Parallel Seq Scan on books  (cost=0.00..9570.65 rows=63 width=0) (actual time=5.518..120.819 rows=18 loops=3)
+                    Filter: ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text))
+                    Rows Removed by Filter: 52355
+                    Buffers: shared hit=7934
+Planning:
+  Buffers: shared hit=91
+Planning Time: 0.411 ms
+Execution Time: 125.344 ms
+14:38:01.996 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- description-fts / keyword-kdc-content explain 시작
+14:38:02.026 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- description-fts / keyword-kdc-content ---
+Limit  (cost=10734.42..10734.43 rows=1 width=189) (actual time=17.095..20.139 rows=0 loops=1)
+  Buffers: shared hit=7937
+  ->  Sort  (cost=10734.42..10734.43 rows=1 width=189) (actual time=17.094..20.136 rows=0 loops=1)
+        Sort Key: id
+        Sort Method: quicksort  Memory: 25kB
+        Buffers: shared hit=7937
+        ->  Gather  (cost=1000.00..10734.41 rows=1 width=189) (actual time=17.082..20.124 rows=0 loops=1)
+              Workers Planned: 2
+              Workers Launched: 2
+              Buffers: shared hit=7934
+              ->  Parallel Seq Scan on books  (cost=0.00..9734.31 rows=1 width=189) (actual time=14.874..14.874 rows=0 loops=3)
+                    Filter: (((kdc_code)::text ~~ '500%'::text) AND ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text)))
+                    Rows Removed by Filter: 52373
+                    Buffers: shared hit=7934
+Planning:
+  Buffers: shared hit=178
+Planning Time: 0.507 ms
+Execution Time: 20.173 ms
+14:38:02.026 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- description-fts / keyword-kdc-count explain 시작
+14:38:02.055 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- description-fts / keyword-kdc-count ---
+Aggregate  (cost=10734.41..10734.42 rows=1 width=8) (actual time=16.865..19.541 rows=1 loops=1)
+  Buffers: shared hit=7934
+  ->  Gather  (cost=1000.00..10734.41 rows=1 width=0) (actual time=16.861..19.536 rows=0 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=7934
+        ->  Parallel Seq Scan on books  (cost=0.00..9734.31 rows=1 width=0) (actual time=14.478..14.478 rows=0 loops=3)
+              Filter: (((kdc_code)::text ~~ '500%'::text) AND ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text)))
+              Rows Removed by Filter: 52373
+              Buffers: shared hit=7934
+Planning:
+  Buffers: shared hit=95
+Planning Time: 0.269 ms
+Execution Time: 19.583 ms
+14:38:02.055 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- description-fts / description-fts-content explain 시작
+14:38:02.066 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- description-fts / description-fts-content ---
+Limit  (cost=34.34..34.35 rows=1 width=189) (actual time=0.201..0.205 rows=20 loops=1)
+  Buffers: shared hit=30
+  ->  Sort  (cost=34.34..34.35 rows=1 width=189) (actual time=0.200..0.202 rows=20 loops=1)
+        Sort Key: id
+        Sort Method: quicksort  Memory: 30kB
+        Buffers: shared hit=30
+        ->  Bitmap Heap Scan on books  (cost=30.07..34.33 rows=1 width=189) (actual time=0.100..0.178 rows=20 loops=1)
+              Recheck Cond: (to_tsvector('simple'::regconfig, COALESCE(description, ''::text)) @@ '''자바'' & ''프로그래밍'''::tsquery)
+              Heap Blocks: exact=20
+              Buffers: shared hit=27
+              ->  Bitmap Index Scan on idx_books_description_fts  (cost=0.00..30.07 rows=1 width=0) (actual time=0.087..0.088 rows=20 loops=1)
+                    Index Cond: (to_tsvector('simple'::regconfig, COALESCE(description, ''::text)) @@ '''자바'' & ''프로그래밍'''::tsquery)
+                    Buffers: shared hit=7
+Planning:
+  Buffers: shared hit=203 read=1
+Planning Time: 1.497 ms
+Execution Time: 0.281 ms
+14:38:02.066 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- description-fts / description-fts-count explain 시작
+14:38:02.077 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- description-fts / description-fts-count ---
+Aggregate  (cost=34.34..34.35 rows=1 width=8) (actual time=0.135..0.135 rows=1 loops=1)
+  Buffers: shared hit=27
+  ->  Bitmap Heap Scan on books  (cost=30.07..34.33 rows=1 width=0) (actual time=0.054..0.130 rows=20 loops=1)
+        Recheck Cond: (to_tsvector('simple'::regconfig, COALESCE(description, ''::text)) @@ '''자바'' & ''프로그래밍'''::tsquery)
+        Heap Blocks: exact=20
+        Buffers: shared hit=27
+        ->  Bitmap Index Scan on idx_books_description_fts  (cost=0.00..30.07 rows=1 width=0) (actual time=0.041..0.041 rows=20 loops=1)
+              Index Cond: (to_tsvector('simple'::regconfig, COALESCE(description, ''::text)) @@ '''자바'' & ''프로그래밍'''::tsquery)
+              Buffers: shared hit=7
+Planning:
+  Buffers: shared hit=150
+Planning Time: 0.766 ms
+Execution Time: 0.170 ms
+14:38:02.077 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- 후보 인덱스 제거 시작
+14:38:02.133 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- 후보 인덱스 제거 완료
+14:38:02.133 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_kdc_code_pattern 생성 시작
+14:38:02.240 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_kdc_code_pattern 생성 완료
+14:38:02.241 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- pg_trgm extension 확인 시작
+14:38:02.249 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- pg_trgm extension 확인 완료
+14:38:02.250 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_title_trgm 생성 시작
+14:38:05.691 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_title_trgm 생성 완료
+14:38:05.692 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_author_name_trgm 생성 시작
+14:38:07.203 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_author_name_trgm 생성 완료
+14:38:07.203 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_publisher_name_trgm 생성 시작
+14:38:07.906 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_publisher_name_trgm 생성 완료
+14:38:07.906 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_description_fts 생성 시작
+14:38:15.810 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- idx_books_description_fts 생성 완료
+14:38:15.810 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- combined-candidate analyze 시작
+14:42:14.831 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+==================== combined-candidate ====================
+14:42:14.831 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- combined-candidate / isbn-exact-content explain 시작
+14:42:14.842 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- combined-candidate / isbn-exact-content ---
+Limit  (cost=8.45..8.45 rows=1 width=189) (actual time=0.077..0.077 rows=0 loops=1)
+  Buffers: shared hit=6
+  ->  Sort  (cost=8.45..8.45 rows=1 width=189) (actual time=0.076..0.077 rows=0 loops=1)
+        Sort Key: id
+        Sort Method: quicksort  Memory: 25kB
+        Buffers: shared hit=6
+        ->  Index Scan using uk_books_isbn13 on books  (cost=0.42..8.44 rows=1 width=189) (actual time=0.063..0.063 rows=0 loops=1)
+              Index Cond: ((isbn13)::text = '9788968481475'::text)
+              Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=245 read=1
+Planning Time: 0.846 ms
+Execution Time: 0.126 ms
+14:42:14.842 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- combined-candidate / isbn-exact-count explain 시작
+14:42:14.851 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- combined-candidate / isbn-exact-count ---
+Aggregate  (cost=4.44..4.45 rows=1 width=8) (actual time=0.035..0.036 rows=1 loops=1)
+  Buffers: shared hit=3
+  ->  Index Only Scan using uk_books_isbn13 on books  (cost=0.42..4.44 rows=1 width=0) (actual time=0.034..0.034 rows=0 loops=1)
+        Index Cond: (isbn13 = '9788968481475'::text)
+        Heap Fetches: 0
+        Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=169
+Planning Time: 0.267 ms
+Execution Time: 0.063 ms
+14:42:14.851 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- combined-candidate / kdc-prefix-content explain 시작
+14:42:14.858 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- combined-candidate / kdc-prefix-content ---
+Limit  (cost=8.44..8.46 rows=8 width=189) (actual time=1.200..1.203 rows=20 loops=1)
+  Buffers: shared hit=37 read=28
+  ->  Sort  (cost=8.44..8.46 rows=8 width=189) (actual time=1.199..1.200 rows=20 loops=1)
+        Sort Key: id
+        Sort Method: top-N heapsort  Memory: 30kB
+        Buffers: shared hit=37 read=28
+        ->  Index Scan using idx_books_kdc_code_pattern on books  (cost=0.29..8.32 rows=8 width=189) (actual time=0.058..1.165 rows=79 loops=1)
+              Index Cond: (((kdc_code)::text ~>=~ '500'::text) AND ((kdc_code)::text ~<~ '501'::text))
+              Filter: ((kdc_code)::text ~~ '500%'::text)
+              Buffers: shared hit=34 read=28
+Planning:
+  Buffers: shared hit=284
+Planning Time: 0.568 ms
+Execution Time: 1.222 ms
+14:42:14.858 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- combined-candidate / kdc-prefix-count explain 시작
+14:42:14.864 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- combined-candidate / kdc-prefix-count ---
+Aggregate  (cost=4.34..4.35 rows=1 width=8) (actual time=0.028..0.028 rows=1 loops=1)
+  Buffers: shared hit=3
+  ->  Index Only Scan using idx_books_kdc_code_pattern on books  (cost=0.29..4.32 rows=8 width=0) (actual time=0.016..0.022 rows=79 loops=1)
+        Index Cond: ((kdc_code ~>=~ '500'::text) AND (kdc_code ~<~ '501'::text))
+        Filter: ((kdc_code)::text ~~ '500%'::text)
+        Heap Fetches: 0
+        Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=200
+Planning Time: 0.338 ms
+Execution Time: 0.050 ms
+14:42:14.864 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- combined-candidate / keyword-content explain 시작
+14:42:14.961 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- combined-candidate / keyword-content ---
+Limit  (cost=1000.44..6915.14 rows=20 width=189) (actual time=90.668..91.720 rows=20 loops=1)
+  Buffers: shared hit=6199 read=59
+  ->  Gather Merge  (cost=1000.44..13125.57 rows=41 width=189) (actual time=90.667..91.717 rows=20 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=6199 read=59
+        ->  Parallel Index Scan using books_pkey on books  (cost=0.42..12120.81 rows=17 width=189) (actual time=6.328..45.389 rows=14 loops=3)
+              Filter: ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text))
+              Rows Removed by Filter: 23782
+              Buffers: shared hit=6199 read=59
+Planning:
+  Buffers: shared hit=263 read=3
+Planning Time: 1.067 ms
+Execution Time: 91.749 ms
+14:42:14.961 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- combined-candidate / keyword-count explain 시작
+14:42:15.058 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- combined-candidate / keyword-count ---
+Finalize Aggregate  (cost=10570.90..10570.91 rows=1 width=8) (actual time=89.580..90.928 rows=1 loops=1)
+  Buffers: shared hit=5659 read=2275 written=94
+  ->  Gather  (cost=10570.69..10570.90 rows=2 width=8) (actual time=89.448..90.922 rows=3 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=5659 read=2275 written=94
+        ->  Partial Aggregate  (cost=9570.69..9570.70 rows=1 width=8) (actual time=88.307..88.307 rows=1 loops=3)
+              Buffers: shared hit=5659 read=2275 written=94
+              ->  Parallel Seq Scan on books  (cost=0.00..9570.65 rows=17 width=0) (actual time=1.963..88.299 rows=18 loops=3)
+                    Filter: ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text))
+                    Rows Removed by Filter: 52355
+                    Buffers: shared hit=5659 read=2275 written=94
+Planning:
+  Buffers: shared hit=209
+Planning Time: 0.652 ms
+Execution Time: 90.971 ms
+14:42:15.058 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- combined-candidate / keyword-kdc-content explain 시작
+14:42:15.068 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- combined-candidate / keyword-kdc-content ---
+Limit  (cost=8.34..8.35 rows=1 width=189) (actual time=0.425..0.425 rows=0 loops=1)
+  Buffers: shared hit=65
+  ->  Sort  (cost=8.34..8.35 rows=1 width=189) (actual time=0.424..0.424 rows=0 loops=1)
+        Sort Key: id
+        Sort Method: quicksort  Memory: 25kB
+        Buffers: shared hit=65
+        ->  Index Scan using idx_books_kdc_code_pattern on books  (cost=0.29..8.33 rows=1 width=189) (actual time=0.410..0.410 rows=0 loops=1)
+              Index Cond: (((kdc_code)::text ~>=~ '500'::text) AND ((kdc_code)::text ~<~ '501'::text))
+              Filter: (((kdc_code)::text ~~ '500%'::text) AND ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text)))
+              Rows Removed by Filter: 79
+              Buffers: shared hit=62
+Planning:
+  Buffers: shared hit=312
+Planning Time: 1.004 ms
+Execution Time: 0.453 ms
+14:42:15.068 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- combined-candidate / keyword-kdc-count explain 시작
+14:42:15.076 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- combined-candidate / keyword-kdc-count ---
+Aggregate  (cost=8.33..8.34 rows=1 width=8) (actual time=0.344..0.344 rows=1 loops=1)
+  Buffers: shared hit=62
+  ->  Index Scan using idx_books_kdc_code_pattern on books  (cost=0.29..8.33 rows=1 width=0) (actual time=0.342..0.342 rows=0 loops=1)
+        Index Cond: (((kdc_code)::text ~>=~ '500'::text) AND ((kdc_code)::text ~<~ '501'::text))
+        Filter: (((kdc_code)::text ~~ '500%'::text) AND ((lower((title)::text) ~~ '%자바%'::text) OR (lower((author_name)::text) ~~ '%자바%'::text) OR (lower((publisher_name)::text) ~~ '%자바%'::text)))
+        Rows Removed by Filter: 79
+        Buffers: shared hit=62
+Planning:
+  Buffers: shared hit=256
+Planning Time: 0.827 ms
+Execution Time: 0.384 ms
+14:42:15.076 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- combined-candidate / description-fts-content explain 시작
+14:42:15.083 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- combined-candidate / description-fts-content ---
+Limit  (cost=34.34..34.35 rows=1 width=189) (actual time=0.235..0.238 rows=20 loops=1)
+  Buffers: shared hit=30
+  ->  Sort  (cost=34.34..34.35 rows=1 width=189) (actual time=0.234..0.235 rows=20 loops=1)
+        Sort Key: id
+        Sort Method: quicksort  Memory: 30kB
+        Buffers: shared hit=30
+        ->  Bitmap Heap Scan on books  (cost=30.07..34.33 rows=1 width=189) (actual time=0.088..0.220 rows=20 loops=1)
+              Recheck Cond: (to_tsvector('simple'::regconfig, COALESCE(description, ''::text)) @@ '''자바'' & ''프로그래밍'''::tsquery)
+              Heap Blocks: exact=20
+              Buffers: shared hit=27
+              ->  Bitmap Index Scan on idx_books_description_fts  (cost=0.00..30.07 rows=1 width=0) (actual time=0.079..0.079 rows=20 loops=1)
+                    Index Cond: (to_tsvector('simple'::regconfig, COALESCE(description, ''::text)) @@ '''자바'' & ''프로그래밍'''::tsquery)
+                    Buffers: shared hit=7
+Planning:
+  Buffers: shared hit=265 read=1
+Planning Time: 0.600 ms
+Execution Time: 0.269 ms
+14:42:15.083 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- combined-candidate / description-fts-count explain 시작
+14:42:15.089 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest --
+--- combined-candidate / description-fts-count ---
+Aggregate  (cost=34.34..34.35 rows=1 width=8) (actual time=0.093..0.093 rows=1 loops=1)
+  Buffers: shared hit=27
+  ->  Bitmap Heap Scan on books  (cost=30.07..34.33 rows=1 width=0) (actual time=0.037..0.089 rows=20 loops=1)
+        Recheck Cond: (to_tsvector('simple'::regconfig, COALESCE(description, ''::text)) @@ '''자바'' & ''프로그래밍'''::tsquery)
+        Heap Blocks: exact=20
+        Buffers: shared hit=27
+        ->  Bitmap Index Scan on idx_books_description_fts  (cost=0.00..30.07 rows=1 width=0) (actual time=0.030..0.030 rows=20 loops=1)
+              Index Cond: (to_tsvector('simple'::regconfig, COALESCE(description, ''::text)) @@ '''자바'' & ''프로그래밍'''::tsquery)
+              Buffers: shared hit=7
+Planning:
+  Buffers: shared hit=209
+Planning Time: 0.668 ms
+Execution Time: 0.116 ms
+14:42:15.089 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- 후보 인덱스 제거 시작
+14:42:15.135 [main] INFO com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookSearchIndexExplainTest -- 후보 인덱스 제거 완료
+
+Process finished with exit code 0

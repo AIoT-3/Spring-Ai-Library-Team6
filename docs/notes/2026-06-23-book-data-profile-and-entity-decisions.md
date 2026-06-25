@@ -141,7 +141,6 @@ Book CSV Non-Integer Price Rows
 | `imageUrl` | `TEXT` | URL 길이를 고정 길이로 빡빡하게 제한하지 않음.                            |
 | `description` | `TEXT` | 책 소개. 검색/RAG context 후보.                                |
 | `kdcCode` | `varchar(20)` | KDC는 분류 코드 성격의 문자열로 보관.                                 |
-| `embedding` | `vector(1024)` | 책 1권당 대표 검색 벡터 1개를 저장.                                  |
 | `createdAt`, `updatedAt` | `OffsetDateTime` | 저장/수정 시각 추적.                                            |
 
 ## Excluded

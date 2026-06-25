@@ -7,14 +7,37 @@ spring:
   ai:
     model:
       chat: ollama
-      embedding: ollama
+      embedding: openai
+      image: none
+      moderation: none
+      audio:
+        speech: none
+        transcription: none
     ollama:
       base-url: ${OLLAMA_URL}
       chat:
         model: qwen2.5:latest
+    openai:
       embedding:
+        base-url: ${EMBEDDING_URL}
+        api-key: ${EMBEDDING_API_KEY}
         model: bge-m3
     vectorstore:
       pgvector:
         dimensions: 1024
         initialize-schema: false
+
+book:
+  bulk-insert:
+    runner:
+      enabled: true
+      method: CopyManager
+      csv-path: src/main/resources/data/BOOK_DB_202112.csv
+      batch-size: 1000
+      row-limit: 0
+      reset-before-run: true
+  embedding:
+    generation:
+      enabled: true
+      batch-size: 32
+      row-limit: 0

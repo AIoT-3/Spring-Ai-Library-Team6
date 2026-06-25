@@ -34,6 +34,14 @@ public enum ErrorCode {
             "BOOK_004",
             "도서 대량 적재 옵션이 올바르지 않습니다."
     ),
+    INVALID_EMBEDDING_GENERATION_OPTIONS(
+            "BOOK_005",
+            "도서 임베딩 생성 옵션이 올바르지 않습니다."
+    ),
+    BOOK_EMBEDDING_GENERATION_FAILED(
+            "BOOK_006",
+            "도서 임베딩 생성 중 오류가 발생했습니다."
+    ),
 
     // 500 Internal Server Error
     INTERNAL_ERROR(

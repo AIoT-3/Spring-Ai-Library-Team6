@@ -31,7 +31,7 @@ import org.hibernate.annotations.ColumnDefault;
         },
         uniqueConstraints = @UniqueConstraint(
                 name = "uk_book_embeddings_book_model_source",
-                columnNames = {"book_id", "embedding_model"}
+                columnNames = {"book_id", "embedding_model", "source_text_hash"}
         )
 )
 @Getter
@@ -66,12 +66,17 @@ public class BookEmbedding {
     @Column(name = "embedding_model", length = 100, nullable = false)
     private String embeddingModel;
 
-    @Column(name = "embedding_dimension", nullable = false)
-    private Integer embeddingDimension;
+    // source_text의 해시값: 임베딩에 사용된 컬럼들의 조합을 구분하기 위해 사용.
+    @Column(name = "source_text_hash", length = 64, nullable = false)
+    private String sourceTextHash;
 
+    // 임베딩에 사용된 컬럼들을 조합한 텍스트.
     @Column(name = "source_text", columnDefinition = "TEXT", nullable = false)
     private String sourceText;
 
+    // ddl-auto가 vector(1024) 컬럼을 만들도록 두는 읽기 전용 매핑.
+    // 실제 저장과 검색은 BookEmbeddingRepository의 native SQL에서 처리하므로
+    // JPA가 이 컬럼을 건드리지 않도록 insertable=false, updatable=false
     @Column(name = "embedding", columnDefinition = "vector(1024)",
             nullable = false, insertable = false, updatable = false)
     private String embedding;

@@ -1,8 +1,8 @@
 # 2026-06-24 Batch Insert Comparison
 
-대상 파일: `src/main/resources/data/BOOK_DB_202112.csv`
-실행 파일: `BookBulkInsertPerformanceTest.java`
-처리 row 수: 157,118건
+- 대상 파일: `src/main/resources/data/BOOK_DB_202112.csv`
+- 실행 파일: `BookBulkInsertPerformanceTest.java`
+- 처리 row 수: 157,118건
 
 ## CSV 읽기 + CSV row 변환 + DB 적재: end-to-end 시간 측정 결과
 

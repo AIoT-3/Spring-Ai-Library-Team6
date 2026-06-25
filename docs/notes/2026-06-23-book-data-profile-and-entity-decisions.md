@@ -1,8 +1,8 @@
 # 2026-06-23 Book Data Profile And Entity Decisions
 
-대상 파일: `src/main/resources/data/BOOK_DB_202112.csv`
-실행 파일: `BookCsvProfileTest.java`
-row 수: 157,118건
+- 대상 파일: `src/main/resources/data/BOOK_DB_202112.csv`
+- 실행 파일: `BookCsvProfileTest.java`
+- row 수: 157,118건
 
 ## CSV 분석 결과
 

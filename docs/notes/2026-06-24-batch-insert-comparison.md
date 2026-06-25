@@ -65,9 +65,9 @@
 - 단일 로컬 머신에서 짧은 시간 동안 반복 측정했으므로 절대 성능 수치로 일반화하기 어려움.
 - JVM warm-up, OS cache, Docker resource 상태에 따라 실행 시간이 달라질 수 있음.
 - row 수가 약 15.7만 건으로, 수백만 건 이상에서의 병목은 별도 실험 필요.
-- `CopyManager`의 `batchSize` 값은 표시 목적에 가깝고, 현재 구현에서는 하나의 COPY stream으로 적재한다.
+- `CopyManager`의 `batchSize` 값은 표시 목적에 가깝고, 현재 구현에서는 하나의 COPY stream으로 적재.
 
 ## 결론
 
-- 이번 데이터 크기와 로컬 환경에서는 `CopyManager > JdbcTemplate > EntityManager` 순서로 빨랐다. 
-- 다만 구현 복잡도와 유지보수성을 함께 고려하면 일반적인 애플리케이션 로직에서는 `JdbcTemplate` batch insert도 충분히 실용적이고, 초기 대량 적재나 마이그레이션성 작업에서는 `CopyManager`가 가장 적합하다.
+- 이번 데이터 크기와 로컬 환경에서는 `CopyManager > JdbcTemplate > EntityManager` 순서로 빨랐음. 
+- 다만 구현 복잡도와 유지보수성을 함께 고려하면 일반적인 애플리케이션 로직에서는 `JdbcTemplate` batch insert도 충분히 실용적이고, 초기 대량 적재나 마이그레이션성 작업에서는 `CopyManager`가 가장 적합함.

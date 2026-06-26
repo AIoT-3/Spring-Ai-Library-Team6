@@ -9,9 +9,9 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
   # 코드 변경사항 있을 시 자동으로 적용해서 서버 재실행하는 옵션
-#  devtools:
-#    restart:
-#      enabled: false
+  devtools:
+    restart:
+      enabled: false
   ai:
     model:
       chat: ollama

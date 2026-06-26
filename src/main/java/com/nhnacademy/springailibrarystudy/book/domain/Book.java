@@ -39,7 +39,7 @@ public class Book {
     @SequenceGenerator(
             name = "book_sequence_generator",
             sequenceName = "book_sequence",
-            allocationSize = 1000
+            allocationSize = 1
     )
     @ColumnDefault("nextval('book_sequence')")
     private Long id;

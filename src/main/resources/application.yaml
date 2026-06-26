@@ -4,10 +4,18 @@ spring:
   config:
     import:
       - optional:file:../spring-ai-library-study/.env[.properties]
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  # 코드 변경사항 있을 시 자동으로 적용해서 서버 재실행하는 옵션
+#  devtools:
+#    restart:
+#      enabled: false
   ai:
     model:
       chat: ollama
-      embedding: openai
+      embedding: ollama
       image: none
       moderation: none
       audio:
@@ -16,7 +24,9 @@ spring:
     ollama:
       base-url: ${OLLAMA_URL}
       chat:
-        model: qwen2.5:latest
+        model: qwen3.5:9b
+      embedding:
+        model: bge-m3
     openai:
       embedding:
         base-url: ${EMBEDDING_URL}
@@ -30,14 +40,17 @@ spring:
 book:
   bulk-insert:
     runner:
-      enabled: true
+      # db 초기 적재에 대한 옵션
+      enabled: false
       method: CopyManager
-      csv-path: src/main/resources/data/BOOK_DB_202112.csv
+      csv-path: src/main/resources/data/init/BOOK_DB_202112.csv
       batch-size: 1000
       row-limit: 0
-      reset-before-run: true
+      # true 시 데이터베이스 리셋 후 등록
+      reset-before-run: false
   embedding:
     generation:
+      # 초기 데이터 임베딩을 수행할지에 대한 옵션
       enabled: true
-      batch-size: 32
+      batch-size: 128
       row-limit: 0

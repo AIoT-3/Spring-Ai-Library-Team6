@@ -48,7 +48,7 @@ public class BookEmbedding {
     @SequenceGenerator(
             name = "book_embedding_sequence_generator",
             sequenceName = "book_embedding_sequence",
-            allocationSize = 1000
+            allocationSize = 1
     )
     @ColumnDefault("nextval('book_embedding_sequence')")
     private Long id;

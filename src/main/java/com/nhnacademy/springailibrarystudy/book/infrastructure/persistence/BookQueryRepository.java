@@ -4,6 +4,8 @@ import com.nhnacademy.springailibrarystudy.book.domain.QBook;
 import com.nhnacademy.springailibrarystudy.search.presentation.dto.BookSearchItemResponse;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -68,6 +70,13 @@ public class BookQueryRepository {
                     book.authorName.containsIgnoreCase(query),
                     book.publisherName.containsIgnoreCase(query)
             );
+
+            BooleanExpression fts = Expressions.booleanTemplate(
+                    "function('ts_match_korean', {0}, {1}) = true",
+                    book.description,  // 검색 대상 필드
+                    query           // 검색어
+            );
+            builder.or(fts);
         }
 
         // AND 조건: isbn13이 정확히 일치하는 경우만 검색 결과에 포함
@@ -81,5 +90,10 @@ public class BookQueryRepository {
         }
 
         return builder;
+    }
+
+    public Page<BookSearchItemResponse> vectorSearch() {
+        // todo: vectorSearch 구현 필요
+        return null;
     }
 }

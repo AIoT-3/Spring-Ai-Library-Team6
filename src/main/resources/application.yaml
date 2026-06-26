@@ -4,6 +4,10 @@ spring:
   config:
     import:
       - optional:file:../spring-ai-library-study/.env[.properties]
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   ai:
     model:
       chat: ollama
@@ -30,14 +34,14 @@ spring:
 book:
   bulk-insert:
     runner:
-      enabled: true
+      enabled: false
       method: CopyManager
       csv-path: src/main/resources/data/BOOK_DB_202112.csv
       batch-size: 1000
       row-limit: 0
-      reset-before-run: true
+      reset-before-run: false
   embedding:
     generation:
-      enabled: true
+      enabled: false
       batch-size: 32
       row-limit: 0

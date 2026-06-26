@@ -14,6 +14,9 @@ public record BookSearchRequest(
 
         String kdcCode,
 
-        SearchType searchType
+        SearchType searchType,
+
+        // [step-2 04.벡터검색]을 위한 필드 추가
+        float[] vector
 ) {
 }

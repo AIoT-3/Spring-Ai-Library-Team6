@@ -38,7 +38,8 @@ class SearchBooksByKeywordUseCaseTest {
                 "  자바  ",
                 "0-306-40615-2",
                 "2  ",
-                SearchType.KEYWORD
+                SearchType.KEYWORD,
+                null
         );
         Pageable pageable = PageRequest.of(0, 20);
         Page<BookSearchItemResponse> expected = new PageImpl<>(List.of(), pageable, 0);

@@ -1,8 +1,11 @@
 package com.nhnacademy.springailibrarystudy.search.application;
 
+import com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookQueryRepository;
+import com.nhnacademy.springailibrarystudy.search.domain.SearchType;
 import com.nhnacademy.springailibrarystudy.search.presentation.dto.BookSearchItemResponse;
 import com.nhnacademy.springailibrarystudy.search.presentation.dto.BookSearchRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -11,7 +14,20 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SearchBooksByVectorUseCase {
 
+    private final BookQueryRepository bookQueryRepository;
+    private final EmbeddingModel embeddingModel;
+
     public Page<BookSearchItemResponse> search(BookSearchRequest request, Pageable pageable) {
-        throw new UnsupportedOperationException("벡터 검색 구현이 필요합니다.");
+        float[] vector = embeddingModel.embed(request.query());
+
+        BookSearchRequest vectorRequest = new BookSearchRequest(
+                request.query(),
+                request.isbn(),
+                request.kdcCode(),
+                SearchType.VECTOR,
+                vector
+        );
+
+        return bookQueryRepository.vectorSearch(pageable, vectorRequest);
     }
 }

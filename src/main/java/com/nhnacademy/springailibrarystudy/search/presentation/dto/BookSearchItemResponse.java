@@ -11,7 +11,8 @@ public record BookSearchItemResponse(
         String publisherName,
         LocalDate publishedDate,
         BigDecimal price,
-        String imageUrl
+        String imageUrl,
         // 나중에 score들 추가 가능
+        Double similarity
 ) {
 }

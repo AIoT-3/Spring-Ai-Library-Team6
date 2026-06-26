@@ -1,17 +1,23 @@
 package com.nhnacademy.springailibrarystudy.book.infrastructure.persistence;
 
 import com.nhnacademy.springailibrarystudy.book.domain.QBook;
+import com.nhnacademy.springailibrarystudy.book.domain.QBookEmbedding;
 import com.nhnacademy.springailibrarystudy.search.presentation.dto.BookSearchItemResponse;
+import com.nhnacademy.springailibrarystudy.search.presentation.dto.BookSearchRequest;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
@@ -20,6 +26,7 @@ import org.springframework.util.StringUtils;
 public class BookQueryRepository {
 
     private static final QBook book = QBook.book;
+    private static final QBookEmbedding bookEmbedding = QBookEmbedding.bookEmbedding;
 
     private final JPAQueryFactory queryFactory;
 
@@ -92,8 +99,65 @@ public class BookQueryRepository {
         return builder;
     }
 
-    public Page<BookSearchItemResponse> vectorSearch() {
-        // todo: vectorSearch 구현 필요
-        return null;
+
+
+    private final JdbcTemplate jdbcTemplate;
+
+    public Page<BookSearchItemResponse> vectorSearch(Pageable pageable, BookSearchRequest request) {
+        String vectorString = arrayToVectorString(request.vector());
+        String model = "bge-m3";
+
+        List<BookSearchItemResponse> results = jdbcTemplate.query(
+                """
+                SELECT
+                    b.id,
+                    b.volume_title,
+                    b.title,
+                    b.author_name,
+                    b.publisher_name,
+                    b.published_date,
+                    b.price,
+                    b.image_url,
+                    1 - (be.embedding <=> ?::vector) AS similarity
+                FROM book_embeddings be
+                JOIN books b ON b.id = be.book_id
+                WHERE be.embedding_model = ?
+                ORDER BY be.embedding <=> ?::vector
+                LIMIT ? OFFSET ?
+                """,
+                (rs, rowNum) -> new BookSearchItemResponse(
+                        rs.getLong("id"),
+                        rs.getString("volume_title"),
+                        rs.getString("title"),
+                        rs.getString("author_name"),
+                        rs.getString("publisher_name"),
+                        rs.getObject("published_date", LocalDate.class),
+                        rs.getBigDecimal("price"),
+                        rs.getString("image_url"),
+                        rs.getDouble("similarity")
+                ),
+                vectorString, model, vectorString, pageable.getPageSize(), pageable.getOffset()
+        );
+
+        Long total = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM book_embeddings WHERE embedding_model = ?",
+                Long.class,
+                model
+        );
+
+        return new PageImpl<>(results, pageable, total == null ? 0 : total);
     }
+
+    private String arrayToVectorString(float[] vector) {
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < vector.length; i++) {
+            sb.append(vector[i]);
+            if (i < vector.length - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
 }

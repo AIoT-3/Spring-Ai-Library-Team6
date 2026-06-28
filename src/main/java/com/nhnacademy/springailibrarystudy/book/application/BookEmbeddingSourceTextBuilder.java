@@ -20,9 +20,9 @@ public class BookEmbeddingSourceTextBuilder {
     public String build(BookEmbeddingTarget target) {
         List<String> lines = new ArrayList<>();
         addLine(lines, "제목", target.title());
-        addLine(lines, "권 정보", target.volumeTitle());
-        addLine(lines, "저자", target.authorName());
-        addLine(lines, "출판사", target.publisherName());
+//        addLine(lines, "권 정보", target.volumeTitle());
+//        addLine(lines, "저자", target.authorName());
+//        addLine(lines, "출판사", target.publisherName());
         addLine(lines, "소개", target.description());
 
         return trimToMaxLength(String.join("\n", lines));

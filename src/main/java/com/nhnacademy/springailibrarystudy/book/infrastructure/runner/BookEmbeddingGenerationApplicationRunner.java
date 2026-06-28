@@ -28,7 +28,8 @@ public class BookEmbeddingGenerationApplicationRunner implements ApplicationRunn
     public BookEmbeddingGenerationApplicationRunner(
             BookEmbeddingGenerationProperties properties,
             GenerateBookEmbeddingsUseCase generateBookEmbeddingsUseCase,
-            @Value("${spring.ai.openai.embedding.model}") String embeddingModel
+//            상황에 ollama로 고정, ollama 설정은 docs 참조
+            @Value("${spring.ai.ollama.embedding.model}") String embeddingModel
     ) {
         this.properties = properties;
         this.generateBookEmbeddingsUseCase = generateBookEmbeddingsUseCase;

@@ -43,7 +43,7 @@ book:
       # db 초기 적재에 대한 옵션
       enabled: false
       method: CopyManager
-      csv-path: src/main/resources/data/init/BOOK_DB_202112.csv
+      csv-path: src/main/resources/data/BOOK_DB_202112.csv
       batch-size: 1000
       row-limit: 0
       # true 시 데이터베이스 리셋 후 등록

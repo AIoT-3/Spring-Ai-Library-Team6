@@ -17,6 +17,11 @@ public record BookSearchItemResponse(
         Double similarity,
         Double rrfScore
 ) {
+    public BookSearchItemResponse(Long id, String volumeTitle, String title,
+                                  String authorName, String publisherName, LocalDate publishedDate,
+                                  BigDecimal price, String imageUrl) {
+        this(id, volumeTitle, title, authorName, publisherName, publishedDate, price, imageUrl, null, null);
+    }
 
     public BookSearchItemResponse(Long id, String volumeTitle, String title,
                                   String authorName, String publisherName, LocalDate publishedDate,

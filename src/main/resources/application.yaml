@@ -8,6 +8,12 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+      database: ${REDIS_DATABASE}
   # 코드 변경사항 있을 시 자동으로 적용해서 서버 재실행하는 옵션
   devtools:
     restart:
@@ -54,3 +60,9 @@ book:
       enabled: true
       batch-size: 128
       row-limit: 0
+
+telegram:
+  bot:
+    enabled: false # 일단 기본 비활성화
+    token: ${TELEGRAM_BOT_TOKEN}
+    username: ${TELEGRAM_BOT_USERNAME}

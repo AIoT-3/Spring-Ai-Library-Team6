@@ -104,8 +104,10 @@ public class BookQueryRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public Page<BookSearchItemResponse> vectorSearch(Pageable pageable, BookSearchRequest request) {
-        String vectorString = arrayToVectorString(request.vector());
+//    public Page<BookSearchItemResponse> vectorSearch(Pageable pageable, BookSearchRequest request) {
+    public Page<BookSearchItemResponse> vectorSearch(Pageable pageable, float[] vector) {
+//        String vectorString = arrayToVectorString(request.vector());
+        String vectorString = arrayToVectorString(vector);
         String model = "bge-m3";
 
         List<BookSearchItemResponse> results = jdbcTemplate.query(

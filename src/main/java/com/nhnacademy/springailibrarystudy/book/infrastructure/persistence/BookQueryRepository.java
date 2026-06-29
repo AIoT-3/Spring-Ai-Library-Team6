@@ -2,13 +2,13 @@ package com.nhnacademy.springailibrarystudy.book.infrastructure.persistence;
 
 import com.nhnacademy.springailibrarystudy.book.domain.QBook;
 import com.nhnacademy.springailibrarystudy.book.domain.QBookEmbedding;
+import com.nhnacademy.springailibrarystudy.rag.application.dto.RagBookCandidate;
 import com.nhnacademy.springailibrarystudy.search.presentation.dto.BookSearchItemResponse;
 import com.nhnacademy.springailibrarystudy.search.presentation.dto.BookSearchRequest;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.NumberTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import java.time.LocalDate;
@@ -149,6 +149,42 @@ public class BookQueryRepository {
         );
 
         return new PageImpl<>(results, pageable, total == null ? 0 : total);
+    }
+
+    public List<RagBookCandidate> findRagCandidatesByVector(float[] queryVector, String embeddingModel, int topK) {
+        String vectorString = arrayToVectorString(queryVector);
+
+        // RAG 전용 후보 조회. LLM 컨텍스트에 필요한 isbn/description을 포함한다.
+        // topK는 GenerateRagAnswerCommand에서 최대 5로 제한하지만, repository도 호출값만큼만 반환
+        return jdbcTemplate.query(
+                """
+                SELECT
+                    b.id,
+                    b.isbn13,
+                    b.title,
+                    b.author_name,
+                    b.publisher_name,
+                    b.description,
+                    b.image_url,
+                    1 - (be.embedding <=> ?::vector) AS similarity
+                FROM book_embeddings be
+                JOIN books b ON b.id = be.book_id
+                WHERE be.embedding_model = ?
+                ORDER BY be.embedding <=> ?::vector
+                LIMIT ?
+                """,
+                (rs, rowNum) -> new RagBookCandidate(
+                        rs.getLong("id"),
+                        rs.getString("isbn13"),
+                        rs.getString("title"),
+                        rs.getString("author_name"),
+                        rs.getString("publisher_name"),
+                        rs.getString("description"),
+                        rs.getString("image_url"),
+                        rs.getDouble("similarity")
+                ),
+                vectorString, embeddingModel, vectorString, topK
+        );
     }
 
     private String arrayToVectorString(float[] vector) {

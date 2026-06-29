@@ -15,8 +15,8 @@ public class SubmitFeedbackUseCase {
         return new SubmitFeedbackResult(
                 true,
                 command.userKey(),
-                command.targetType(),
-                command.targetId(),
+                command.query(),
+                command.bookId(),
                 command.feedbackType(),
                 "피드백 저장 구현 전입니다. 현재는 팀 연동용 계약만 제공합니다."
         );

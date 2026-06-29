@@ -46,3 +46,4 @@ application-*.yaml
 *.log
 *.tmp
 /src/main/resources/data/
+/docs/guide/

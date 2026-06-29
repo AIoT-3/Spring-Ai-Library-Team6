@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RAG 도서 추천 오류</title>
+</head>
+<body>
+<main>
+    <h1 th:text="${error}">추천 중 오류가 발생했습니다.</h1>
+    <p th:if="${question != null}">
+        질문: <span th:text="${question}">질문</span>
+    </p>
+    <p th:if="${errorMessage != null}" th:text="${errorMessage}">오류 메시지</p>
+</main>
+</body>
+</html>

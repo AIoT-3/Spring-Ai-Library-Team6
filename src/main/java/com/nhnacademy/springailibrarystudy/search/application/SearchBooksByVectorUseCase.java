@@ -1,7 +1,6 @@
 package com.nhnacademy.springailibrarystudy.search.application;
 
 import com.nhnacademy.springailibrarystudy.book.infrastructure.persistence.BookQueryRepository;
-import com.nhnacademy.springailibrarystudy.search.domain.SearchType;
 import com.nhnacademy.springailibrarystudy.search.presentation.dto.BookSearchItemResponse;
 import com.nhnacademy.springailibrarystudy.search.presentation.dto.BookSearchRequest;
 import lombok.RequiredArgsConstructor;
@@ -20,14 +19,15 @@ public class SearchBooksByVectorUseCase {
     public Page<BookSearchItemResponse> search(BookSearchRequest request, Pageable pageable) {
         float[] vector = embeddingModel.embed(request.query());
 
-        BookSearchRequest vectorRequest = new BookSearchRequest(
-                request.query(),
-                request.isbn(),
-                request.kdcCode(),
-                SearchType.VECTOR,
-                vector
-        );
+//        BookSearchRequest vectorRequest = new BookSearchRequest(
+//                request.query(),
+//                request.isbn(),
+//                request.kdcCode(),
+//                SearchType.VECTOR,
+//                vector
+//        );
 
-        return bookQueryRepository.vectorSearch(pageable, vectorRequest);
+//        return bookQueryRepository.vectorSearch(pageable, vectorRequest);
+        return bookQueryRepository.vectorSearch(pageable, vector);
     }
 }

@@ -18,7 +18,7 @@ class VectorSearchTest {
     @Test
     void vectorSearch() {
         BookSearchRequest request = new BookSearchRequest(
-                "Spring Boot",
+                "스프링부트",
                 null,
                 null,
                 SearchType.VECTOR,
@@ -31,7 +31,7 @@ class VectorSearchTest {
         );
 
         result.getContent().forEach(book ->
-                System.out.println("제목: " + book.title() + ", 유사도: " + book.similarity())
+                System.out.println("id: " + book.id() + ",제목: " + book.title() + ", 유사도: " + book.similarity() + ", description: " + book.description())
         );
     }
 }

@@ -114,6 +114,7 @@ public class BookQueryRepository {
                 """
                 SELECT
                     b.id,
+                    b.isbn13,
                     b.volume_title,
                     b.title,
                     b.author_name,
@@ -121,6 +122,7 @@ public class BookQueryRepository {
                     b.published_date,
                     b.price,
                     b.image_url,
+                    b.description,
                     1 - (be.embedding <=> ?::vector) AS similarity
                 FROM book_embeddings be
                 JOIN books b ON b.id = be.book_id
@@ -130,6 +132,7 @@ public class BookQueryRepository {
                 """,
                 (rs, rowNum) -> new BookSearchItemResponse(
                         rs.getLong("id"),
+                        rs.getString("isbn13"),
                         rs.getString("volume_title"),
                         rs.getString("title"),
                         rs.getString("author_name"),
@@ -137,6 +140,7 @@ public class BookQueryRepository {
                         rs.getObject("published_date", LocalDate.class),
                         rs.getBigDecimal("price"),
                         rs.getString("image_url"),
+                        rs.getString("description"),
                         rs.getDouble("similarity")
                 ),
                 vectorString, model, vectorString, pageable.getPageSize(), pageable.getOffset()

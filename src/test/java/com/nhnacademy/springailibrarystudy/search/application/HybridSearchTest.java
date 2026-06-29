@@ -31,7 +31,7 @@ public class HybridSearchTest {
         );
 
         responses.getContent().forEach(book ->
-                System.out.println("제목: " + book.title() + ", rrf-score: " + book.rrfScore())
+                System.out.println("id: " + book.id() + ",제목: " + book.title() + ", rrf: " + book.rrfScore() + ", description: " + book.description())
         );
 
     }

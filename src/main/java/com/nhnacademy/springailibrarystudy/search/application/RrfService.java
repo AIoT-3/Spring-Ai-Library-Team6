@@ -50,9 +50,9 @@ public class RrfService {
                     Double rrfScore = entry.getValue();
                     // 최종 필드에 RRF 점수를 포함하여 반환
                     return new BookSearchItemResponse(
-                            original.id(), original.volumeTitle(), original.title(),
+                            original.id(), original.isbn13(), original.volumeTitle(), original.title(),
                             original.authorName(), original.publisherName(), original.publishedDate(),
-                            original.price(), original.imageUrl(), original.similarity(),
+                            original.price(), original.imageUrl(), original.description(), original.similarity(),
                             rrfScore
                     );
                 })

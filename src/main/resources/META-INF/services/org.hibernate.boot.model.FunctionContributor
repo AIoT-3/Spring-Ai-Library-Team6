@@ -1,1 +1,1 @@
-com.nhnacademy.springailibrarystudy.book.application.contributor.PostgreSQLFunctionContributor
+com.nhnacademy.springailibrarystudy.global.infrastructure.hibernate.PostgreSQLFunctionContributor

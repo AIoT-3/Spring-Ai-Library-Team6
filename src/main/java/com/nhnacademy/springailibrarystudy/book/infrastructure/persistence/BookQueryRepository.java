@@ -3,12 +3,10 @@ package com.nhnacademy.springailibrarystudy.book.infrastructure.persistence;
 import com.nhnacademy.springailibrarystudy.book.domain.QBook;
 import com.nhnacademy.springailibrarystudy.book.domain.QBookEmbedding;
 import com.nhnacademy.springailibrarystudy.search.presentation.dto.BookSearchItemResponse;
-import com.nhnacademy.springailibrarystudy.search.presentation.dto.BookSearchRequest;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.NumberTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import java.time.LocalDate;
@@ -47,7 +45,8 @@ public class BookQueryRepository {
                         book.publisherName,
                         book.publishedDate,
                         book.price,
-                        book.imageUrl
+                        book.imageUrl,
+                        Expressions.nullExpression(Double.class)
                 ))
                 .from(book)
                 .where(where)
@@ -103,14 +102,15 @@ public class BookQueryRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public Page<BookSearchItemResponse> vectorSearch(Pageable pageable, BookSearchRequest request) {
-        String vectorString = arrayToVectorString(request.vector());
+    public Page<BookSearchItemResponse> vectorSearch(Pageable pageable, float[] vector) {
+        String vectorString = arrayToVectorString(vector);
         String model = "bge-m3";
 
         List<BookSearchItemResponse> results = jdbcTemplate.query(
                 """
                 SELECT
                     b.id,
+                    b.isbn13,
                     b.volume_title,
                     b.title,
                     b.author_name,
@@ -118,6 +118,7 @@ public class BookQueryRepository {
                     b.published_date,
                     b.price,
                     b.image_url,
+                    b.description,
                     1 - (be.embedding <=> ?::vector) AS similarity
                 FROM book_embeddings be
                 JOIN books b ON b.id = be.book_id
@@ -127,6 +128,7 @@ public class BookQueryRepository {
                 """,
                 (rs, rowNum) -> new BookSearchItemResponse(
                         rs.getLong("id"),
+                        rs.getString("isbn13"),
                         rs.getString("volume_title"),
                         rs.getString("title"),
                         rs.getString("author_name"),
@@ -134,6 +136,7 @@ public class BookQueryRepository {
                         rs.getObject("published_date", LocalDate.class),
                         rs.getBigDecimal("price"),
                         rs.getString("image_url"),
+                        rs.getString("description"),
                         rs.getDouble("similarity")
                 ),
                 vectorString, model, vectorString, pageable.getPageSize(), pageable.getOffset()

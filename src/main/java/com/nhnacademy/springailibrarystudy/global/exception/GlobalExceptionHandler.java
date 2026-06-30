@@ -27,7 +27,9 @@ public class GlobalExceptionHandler {
             case INVALID_ISBN,
                  INVALID_BOOK_CSV,
                  INVALID_BULK_INSERT_OPTIONS,
-                 INVALID_EMBEDDING_GENERATION_OPTIONS -> HttpStatus.BAD_REQUEST;
+                 INVALID_EMBEDDING_GENERATION_OPTIONS,
+                 INVALID_BOOK_ID -> HttpStatus.BAD_REQUEST;
+            case BOOK_NOT_FOUND -> HttpStatus.NOT_FOUND;
             default -> HttpStatus.INTERNAL_SERVER_ERROR;
         };
     }

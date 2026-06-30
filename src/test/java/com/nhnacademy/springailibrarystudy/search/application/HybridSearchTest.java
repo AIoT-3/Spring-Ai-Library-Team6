@@ -10,28 +10,29 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 @SpringBootTest
-class VectorSearchTest {
+public class HybridSearchTest {
 
     @Autowired
-    SearchBooksByVectorUseCase searchBooksByVectorUseCase;
+    SearchBooksHybridUseCase searchBooksHybridUseCase;
 
     @Test
-    void vectorSearch() {
+    void hybridSearch() {
         BookSearchRequest request = new BookSearchRequest(
-                "스프링부트",
+                "자바 프로그래밍",
                 null,
                 null,
-                SearchType.VECTOR,
+                SearchType.HYBRID,
                 null
         );
 
-        Page<BookSearchItemResponse> result = searchBooksByVectorUseCase.search(
+        Page<BookSearchItemResponse> responses = searchBooksHybridUseCase.search(
                 request,
-                PageRequest.of(0, 20)
+                PageRequest.of(0, 10)
         );
 
-        result.getContent().forEach(book ->
-                System.out.println("id: " + book.id() + ",제목: " + book.title() + ", 유사도: " + book.similarity() + ", description: " + book.description())
+        responses.getContent().forEach(book ->
+                System.out.println("id: " + book.id() + ",제목: " + book.title() + ", rrf: " + book.rrfScore() + ", description: " + book.description())
         );
+
     }
 }

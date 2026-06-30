@@ -1,20 +1,17 @@
 package com.nhnacademy.springailibrarystudy.feedback.application.dto;
 
-import com.nhnacademy.springailibrarystudy.feedback.domain.FeedbackTargetType;
 import com.nhnacademy.springailibrarystudy.feedback.domain.FeedbackType;
 
 public record SubmitFeedbackCommand(
         String userKey,
-        FeedbackTargetType targetType,
-        String targetId,
-        String question,
+        String query,
+        Long bookId,
         FeedbackType feedbackType
 ) {
 
     public SubmitFeedbackCommand {
         userKey = normalize(userKey);
-        targetId = normalize(targetId);
-        question = normalize(question);
+        query = normalize(query);
     }
 
     private static String normalize(String value) {

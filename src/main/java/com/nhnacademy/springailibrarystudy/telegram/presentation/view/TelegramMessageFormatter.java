@@ -1,7 +1,7 @@
 package com.nhnacademy.springailibrarystudy.telegram.presentation.view;
 
 import com.nhnacademy.springailibrarystudy.rag.application.dto.GenerateRagAnswerResult;
-import com.nhnacademy.springailibrarystudy.search.presentation.dto.BookSearchItemResponse;
+import com.nhnacademy.springailibrarystudy.rag.application.dto.RagBookRecommendation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -22,19 +22,24 @@ public class TelegramMessageFormatter {
         message.append(result.answer()).append("\n\n");
 
         // 결과가 없는 경우
-        if (result.sources().isEmpty()) {
+        if (result.books().isEmpty()) {
             message.append("검색 결과가 없습니다.");
             return message.toString();
         }
 
         // 결과가 있는 경우
         message.append("검색 결과\n");
-        for (int i = 0; i < result.sources().size(); i++) {
-            BookSearchItemResponse item = result.sources().get(i);
+        for (int i = 0; i < result.books().size(); i++) {
+            RagBookRecommendation item = result.books().get(i);
             message.append(i + 1).append(". ")
                     .append(nullToDash(item.title())).append(" / ")
                     .append(nullToDash(item.authorName())).append(" / ")
                     .append(nullToDash(item.publisherName())).append("\n");
+            if (item.recommendationReason() != null && !item.recommendationReason().isBlank()) {
+                message.append("   추천 이유: ")
+                        .append(item.recommendationReason().trim())
+                        .append("\n");
+            }
         }
         message.append("\n좋아요/싫어요 버튼을 눌러 피드백을 남겨주세요.");
 

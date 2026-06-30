@@ -1,9 +1,8 @@
 package com.nhnacademy.springailibrarystudy.telegram.presentation.handler;
 
-import com.nhnacademy.springailibrarystudy.rag.application.GenerateRagAnswerUseCase;
+import com.nhnacademy.springailibrarystudy.rag.application.SearchBooksRagUseCase;
 import com.nhnacademy.springailibrarystudy.rag.application.dto.GenerateRagAnswerCommand;
 import com.nhnacademy.springailibrarystudy.rag.application.dto.GenerateRagAnswerResult;
-import com.nhnacademy.springailibrarystudy.search.domain.SearchType;
 import com.nhnacademy.springailibrarystudy.telegram.application.TelegramSearchContext;
 import com.nhnacademy.springailibrarystudy.telegram.application.TelegramSearchContextStore;
 import com.nhnacademy.springailibrarystudy.telegram.presentation.view.TelegramKeyboardFactory;
@@ -22,7 +21,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 @RequiredArgsConstructor
 public class TelegramMessageHandler {
 
-    private final GenerateRagAnswerUseCase generateRagAnswerUseCase;
+    private final SearchBooksRagUseCase searchBooksRagUseCase;
     private final TelegramSearchContextStore searchContextStore;
     private final TelegramMessageFormatter messageFormatter;
     private final TelegramKeyboardFactory keyboardFactory;
@@ -39,16 +38,16 @@ public class TelegramMessageHandler {
 
         try {
             // RAG 답변 생성
-            GenerateRagAnswerResult result = generateRagAnswerUseCase.answer(
-                    new GenerateRagAnswerCommand(question, userKey, 5, SearchType.KEYWORD)
+            GenerateRagAnswerResult result = searchBooksRagUseCase.answer(
+                    new GenerateRagAnswerCommand(question, userKey, 10, 5)
             );
 
             // 답변 메시지 생성
             SendMessage response = createMessage(message, messageFormatter.formatRagAnswer(result));
-            if (!result.sources().isEmpty()) {
+            if (!result.books().isEmpty()) {
                 // 캐시 저장 및 피드백 버튼 생성
                 String contextId = searchContextStore.save(new TelegramSearchContext(userKey, question));
-                response.setReplyMarkup(keyboardFactory.createFeedbackKeyboard(contextId, result.sources()));
+                response.setReplyMarkup(keyboardFactory.createFeedbackKeyboard(contextId, result.books()));
             }
 
             return List.of(response);

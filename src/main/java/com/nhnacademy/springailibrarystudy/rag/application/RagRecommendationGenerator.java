@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -30,9 +32,12 @@ public class RagRecommendationGenerator {
     ) {
         log.info("LLM 추천 호출: 후보 {}건, topK={}", candidates.size(), recommendationTopK);
         long start = System.currentTimeMillis();
-        String response = chatModel.call(prompt).getResult().getOutput().getText();
-        log.info("LLM 응답 수신: {}자, elapsed={}ms",
-                response == null ? 0 : response.length(), System.currentTimeMillis() - start);
+        ChatResponse chatResponse = chatModel.call(prompt);
+        String response = chatResponse.getResult().getOutput().getText();
+        Usage usage = chatResponse.getMetadata().getUsage();
+        log.info("LLM 응답 수신: {}자, elapsed={}ms, tokens(prompt={}, completion={}, total={})",
+                response == null ? 0 : response.length(), System.currentTimeMillis() - start,
+                usage.getPromptTokens(), usage.getCompletionTokens(), usage.getTotalTokens());
         log.debug("LLM 원문 응답: {}", response);
 
         List<ParsedRecommendation> parsedRecommendations = parse(response);

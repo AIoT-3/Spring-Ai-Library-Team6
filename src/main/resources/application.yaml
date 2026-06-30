@@ -46,6 +46,11 @@ spring:
       pgvector:
         dimensions: 1024
         initialize-schema: false
+  cache:
+    type: redis
+    redis:
+      time-to-live: 24h
+      cache-null-values: false
 
 book:
   bulk-insert:

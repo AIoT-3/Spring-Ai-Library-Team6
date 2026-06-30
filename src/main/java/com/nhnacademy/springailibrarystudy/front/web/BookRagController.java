@@ -1,6 +1,6 @@
 package com.nhnacademy.springailibrarystudy.front.web;
 
-import com.nhnacademy.springailibrarystudy.rag.application.GenerateRagAnswerUseCase;
+import com.nhnacademy.springailibrarystudy.rag.application.SearchBooksRagUseCase;
 import com.nhnacademy.springailibrarystudy.rag.application.dto.GenerateRagAnswerCommand;
 import com.nhnacademy.springailibrarystudy.rag.application.dto.GenerateRagAnswerResult;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequiredArgsConstructor
 public class BookRagController {
 
-    private final GenerateRagAnswerUseCase generateRagAnswerUseCase;
+    private final SearchBooksRagUseCase searchBooksRagUseCase;
 
     @GetMapping("/rag/recommend")
     public String recommendBooks(
@@ -21,8 +21,8 @@ public class BookRagController {
             Model model
     ) {
         try {
-            GenerateRagAnswerResult result = generateRagAnswerUseCase.answer(
-                    new GenerateRagAnswerCommand(question, null, 10, 5, null)
+            GenerateRagAnswerResult result = searchBooksRagUseCase.answer(
+                    GenerateRagAnswerCommand.of(question)
             );
 
             model.addAttribute("question", question);

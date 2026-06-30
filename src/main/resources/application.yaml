@@ -25,6 +25,8 @@ spring:
       base-url: ${OLLAMA_URL}
       chat:
         model: qwen3.5:9b
+        think: false
+        format: json
       embedding:
         model: bge-m3
     openai:

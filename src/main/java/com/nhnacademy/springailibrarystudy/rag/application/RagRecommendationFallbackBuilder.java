@@ -9,7 +9,7 @@ import org.springframework.util.StringUtils;
 @Component
 public class RagRecommendationFallbackBuilder {
 
-    private static final int MAX_REASON_SOURCE_LENGTH = 256;
+    private static final int MAX_REASON_SOURCE_LENGTH = 512;
 
     public List<RagBookRecommendation> build(List<RagBookCandidate> candidates, int recommendationTopK) {
         return candidates.stream()

@@ -4,15 +4,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.springailibrarystudy.rag.application.dto.RagBookCandidate;
 import com.nhnacademy.springailibrarystudy.rag.application.dto.RagBookRecommendation;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class RagRecommendationGenerator {
@@ -25,11 +28,17 @@ public class RagRecommendationGenerator {
             List<RagBookCandidate> candidates,
             int recommendationTopK
     ) {
+        log.info("LLM 추천 호출: 후보 {}건, topK={}", candidates.size(), recommendationTopK);
+        long start = System.currentTimeMillis();
         String response = chatModel.call(prompt).getResult().getOutput().getText();
+        log.info("LLM 응답 수신: {}자, elapsed={}ms",
+                response == null ? 0 : response.length(), System.currentTimeMillis() - start);
+        log.debug("LLM 원문 응답: {}", response);
+
         List<ParsedRecommendation> parsedRecommendations = parse(response);
         Map<Long, RagBookCandidate> candidateById = toCandidateMap(candidates);
 
-        return parsedRecommendations.stream()
+        List<RagBookRecommendation> recommendations = parsedRecommendations.stream()
                 .filter(parsed -> candidateById.containsKey(parsed.id()))
                 .limit(recommendationTopK)
                 .map(parsed -> RagBookRecommendation.of(
@@ -37,6 +46,13 @@ public class RagRecommendationGenerator {
                         parsed.recommendationReason()
                 ))
                 .toList();
+
+        log.info("LLM 추천 파싱 완료: 파싱 {}건 -> 후보 매칭 {}건",
+                parsedRecommendations.size(), recommendations.size());
+        if (recommendations.isEmpty()) {
+            log.warn("LLM 추천 매칭 0건, 폴백 예정. 원문 응답: {}", response);
+        }
+        return recommendations;
     }
 
     private Map<Long, RagBookCandidate> toCandidateMap(List<RagBookCandidate> candidates) {
@@ -49,30 +65,28 @@ public class RagRecommendationGenerator {
 
     private List<ParsedRecommendation> parse(String response) {
         try {
-            JsonNode root = objectMapper.readTree(extractJsonArray(response));
-            if (!root.isArray()) {
+            JsonNode array = objectMapper.readTree(extractJsonArray(response));
+            if (!array.isArray()) {
                 return List.of();
             }
 
-            return root.findValuesAsText("id").stream()
-                    .map(Long::valueOf)
-                    .map(id -> new ParsedRecommendation(id, findReason(root, id)))
-                    .filter(parsed -> StringUtils.hasText(parsed.recommendationReason()))
-                    .toList();
+            List<ParsedRecommendation> parsed = new ArrayList<>();
+            for (JsonNode item : array) {
+                JsonNode id = item.get("id");
+                JsonNode reason = item.get("recommendationReason");
+                if (id == null || !id.canConvertToLong() || reason == null || reason.isNull()) {
+                    continue;
+                }
+                String text = reason.asText().trim();
+                if (!text.isEmpty()) {
+                    parsed.add(new ParsedRecommendation(id.asLong(), text));
+                }
+            }
+            return parsed;
         } catch (Exception e) {
+            log.warn("LLM 응답 JSON 파싱 실패: {}", e.toString());
             return List.of();
         }
-    }
-
-    private String findReason(JsonNode root, Long id) {
-        for (JsonNode item : root) {
-            JsonNode idNode = item.get("id");
-            if (idNode != null && idNode.asLong() == id) {
-                JsonNode reasonNode = item.get("recommendationReason");
-                return reasonNode == null ? "" : reasonNode.asText();
-            }
-        }
-        return "";
     }
 
     private String extractJsonArray(String response) {
@@ -80,12 +94,16 @@ public class RagRecommendationGenerator {
             return "[]";
         }
 
-        int start = response.indexOf('[');
-        int end = response.lastIndexOf(']');
+        // think=false로도 thinking 출력이 남는 경우 </think> 이후 본문만 사용하ㅁ
+        int thinkEnd = response.lastIndexOf("</think>");
+        String body = thinkEnd >= 0 ? response.substring(thinkEnd + "</think>".length()) : response;
+
+        int start = body.indexOf('[');
+        int end = body.lastIndexOf(']');
         if (start < 0 || end < start) {
             return "[]";
         }
-        return response.substring(start, end + 1);
+        return body.substring(start, end + 1);
     }
 
     private record ParsedRecommendation(

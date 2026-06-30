@@ -9,6 +9,8 @@ public record RagBookCandidate(
         String publisherName,
         String description,
         String imageUrl,
-        Double similarity
+        Double similarity,
+        Double rrfScore
+
 ) {
 }

@@ -15,11 +15,13 @@ public class RagPromptBuilder {
             사용자 질문에 가장 적합한 도서를 최대 {recommendationTopK}권 고르세요.
             각 도서마다 추천 이유를 한국어 한 문장으로 작성하세요.
 
-            응답은 유효한 JSON 배열 하나만 반환하세요. 배열 앞뒤에 다른 텍스트를 붙이지 마세요.
-            각 항목은 정확히 두 필드만 가집니다: id, recommendationReason
-            id에는 후보 목록에 표시된 "id" 값(숫자)을 그대로 사용하세요. "도서 1" 같은 라벨이나 순번이 아니라 숫자 id여야 합니다.
-            recommendationReason은 한국어 한 문장으로 작성하고, null이나 빈 값을 넣지 마세요.
-            markdown, 코드블록, 주석은 포함하지 마세요.
+            [절대 규칙]
+            1. 응답은 순수 JSON 배열만 반환하세요. 마크다운, 코드블록, 부가 텍스트는 금지입니다.
+            2. 각 항목은 반드시 id 와 recommendationReason 두 필드만 가집니다. 다른 필드명은 절대 사용하지 마세요.
+            3. id 는 후보 목록에 표시된 숫자를 따옴표 없이 정수로 그대로 사용하세요. 예시: 12345
+            4. recommendationReason 은 한국어 한 문장으로 작성하고, 빈 값이나 null 금지.
+            5. recommendationReason 값 내부에 큰따옴표와 작은따옴표를 사용하지 마세요.
+            6. 책 제목을 언급할 때는 따옴표 없이 제목만 그대로 쓰세요.
 
             [사용자 질문]
             {question}

@@ -27,6 +27,8 @@ spring:
         model: qwen3.5:9b
         think: false
         format: json
+        num-ctx: 8192
+        num-predict: 2048
       embedding:
         model: bge-m3
     openai:

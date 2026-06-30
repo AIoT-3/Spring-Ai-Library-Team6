@@ -10,6 +10,7 @@ public record RagBookRecommendation(
         String description,
         String imageUrl,
         Double similarity,
+        Double rrfScore,
         String recommendationReason
 ) {
 
@@ -23,6 +24,7 @@ public record RagBookRecommendation(
                 candidate.description(),
                 candidate.imageUrl(),
                 candidate.similarity(),
+                candidate.rrfScore(),
                 recommendationReason
         );
     }

@@ -27,6 +27,11 @@ public class SearchBooksRagUseCase {
     private final RagRecommendationGenerator recommendationGenerator;
     private final RagRecommendationFallbackBuilder fallbackBuilder;
 
+    // RRF 점수 기반 필터링에 사용할 수치
+    private static final Double SCORE_THRESHOLD = 0.015;
+    // AI에게 전달할 최대 도서 수
+    private static final int FALLBACK_CANDIDATES = 10;
+
     public GenerateRagAnswerResult answer(GenerateRagAnswerCommand command) {
         Objects.requireNonNull(command, "command must not be null");
 
@@ -43,9 +48,21 @@ public class SearchBooksRagUseCase {
             return fallback("질문과 관련된 도서를 찾지 못했습니다.", candidates, command.recommendationTopK());
         }
 
-        String context = ragContextBuilder.build(candidates);
+        //RRF 점수 기반 팔티렁을 통해 얻어낸 도서 {DEFAULT_BATCH_SIZE}권에서
+        //RRF 점수가 기준치를 넘어가는 도서들에 대해, AI에게 전달할 도서 수 만큼만 걸러냄
+        List<RagBookCandidate> filteredCandidates = candidates.stream()
+                .filter(book -> book.rrfScore() != null) // && book.rrfScore() >= SCORE_THRESHOLD)
+                .limit(FALLBACK_CANDIDATES)
+                .toList();
+        // RRF 점수 기반 필터링 대신, RRF 점수 기준 내림차순으로 정렬된 도서들 중 상위 10권만 필터링
+
+        for (RagBookCandidate ragBookCandidate : filteredCandidates) {
+            log.info("id: {}, title: {}, rrfScore: {}", ragBookCandidate.id(), ragBookCandidate.title(), ragBookCandidate.rrfScore());
+        }
+
+        String context = ragContextBuilder.build(filteredCandidates);
         Prompt prompt = ragPromptBuilder.build(command.question(), context, command.recommendationTopK());
-        List<RagBookRecommendation> books = recommend(prompt, candidates, command.recommendationTopK());
+        List<RagBookRecommendation> books = recommend(prompt, filteredCandidates, command.recommendationTopK());
 
         if (books.isEmpty()) {
             List<RagBookRecommendation> fallbackBooks =
@@ -59,7 +76,7 @@ public class SearchBooksRagUseCase {
 
         return result(
                 "후보 도서 %d권 중 질문에 적합한 도서 %d권을 추천했습니다."
-                        .formatted(candidates.size(), books.size()),
+                        .formatted(filteredCandidates.size(), books.size()),
                 books,
                 false
         );

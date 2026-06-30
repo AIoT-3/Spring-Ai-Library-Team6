@@ -11,20 +11,35 @@ public record GenerateRagAnswerCommand(
         int recommendationTopK
 ) {
 
-    private static final int DEFAULT_CANDIDATE_TOP_K = 10;
+    private static final int DEFAULT_CANDIDATE_TOP_K = 100;
     private static final int MAX_CANDIDATE_TOP_K = 10;
-    private static final int DEFAULT_RECOMMENDATION_TOP_K = 5;
+    private static final int DEFAULT_RECOMMENDATION_TOP_K = 10;
     private static final int MAX_RECOMMENDATION_TOP_K = 5;
 
-    public GenerateRagAnswerCommand {
-        question = normalize(question);
-        userKey = normalize(userKey);
-        candidateTopK = candidateTopK <= 0
-                ? DEFAULT_CANDIDATE_TOP_K
-                : Math.min(candidateTopK, MAX_CANDIDATE_TOP_K);
-        recommendationTopK = recommendationTopK <= 0
-                ? DEFAULT_RECOMMENDATION_TOP_K
-                : Math.min(recommendationTopK, MAX_RECOMMENDATION_TOP_K);
+//    public GenerateRagAnswerCommand {
+//        question = normalize(question);
+//        userKey = normalize(userKey);
+//        candidateTopK = candidateTopK <= 0
+//                ? DEFAULT_CANDIDATE_TOP_K
+//                : Math.min(candidateTopK, MAX_CANDIDATE_TOP_K);
+//        recommendationTopK = recommendationTopK <= 0
+//                ? DEFAULT_RECOMMENDATION_TOP_K
+//                : Math.min(recommendationTopK, MAX_RECOMMENDATION_TOP_K);
+//    }
+
+    /**
+     * GenerateRagAnswerCommand.of(question)을 호출 시,
+     * 두 필드(candidateTopK, recommendationTopK)가 디폴드 값으로 지정되도록 생성자 변경
+     * @param question 사용자 질문 (자연어)
+     * @param userKey ()
+     * @param candidateTopK DB search(hybrid-search)로 가져올 후보 수
+     * @param recommendationTopK LLM이 최종 추천할 도서 수
+     */
+    public GenerateRagAnswerCommand(String question, String userKey, int candidateTopK, int recommendationTopK) {
+        this.question = normalize(question);
+        this.userKey = normalize(userKey);
+        this.candidateTopK = candidateTopK;
+        this.recommendationTopK = recommendationTopK;
     }
 
     public static GenerateRagAnswerCommand of(String question) {

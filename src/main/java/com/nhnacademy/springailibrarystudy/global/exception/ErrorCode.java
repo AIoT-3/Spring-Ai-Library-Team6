@@ -42,6 +42,20 @@ public enum ErrorCode {
             "BOOK_006",
             "도서 임베딩 생성 중 오류가 발생했습니다."
     ),
+    INVALID_BOOK_ID(
+            "BOOK_007",
+            "올바르지 않은 도서 ID입니다."
+    ),
+    INVALID_FEEDBACK_COMMAND(
+            "FEEDBACK_001",
+            "올바르지 않은 피드백 요청입니다."
+    ),
+
+    // 404 Not Found
+    BOOK_NOT_FOUND(
+            "BOOK_008",
+            "도서를 찾을 수 없습니다."
+    ),
 
     // 500 Internal Server Error
     INTERNAL_ERROR(

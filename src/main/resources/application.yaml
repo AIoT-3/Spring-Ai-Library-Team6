@@ -47,10 +47,10 @@ spring:
         dimensions: 1024
         initialize-schema: false
   rabbitmq:
-    host: s4.java21.net
-    port: 5672
-    username: admin
-    password: nhnacademy123!
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
     listener:
       simple:
         concurrency: 3

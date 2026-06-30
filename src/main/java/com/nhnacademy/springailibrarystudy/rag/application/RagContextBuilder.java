@@ -21,11 +21,13 @@ public class RagContextBuilder {
 
             // DB에서 검색된 field만 컨텍스트에 넣음
             context.append("[도서 ").append(i + 1).append("]\n");
+            appendLine(context, "id", candidate.id());
             appendLine(context, "title", candidate.title());
             appendLine(context, "author", candidate.authorName());
             appendLine(context, "publisher", candidate.publisherName());
             appendLine(context, "description", trimDescription(candidate.description()));
             appendLine(context, "similarity", candidate.similarity());
+            appendLine(context, "rrfScore", candidate.rrfScore());
             context.append('\n');
         }
 

@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+// FIXME: infrastructure 보다는 application 쪽으로 옮기는 것 고려 (외부 API 호출이 아닌 내부 UseCase 호출이라서)
 @Slf4j
 @Component
 @RequiredArgsConstructor

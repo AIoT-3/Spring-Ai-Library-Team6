@@ -57,7 +57,7 @@ book:
   embedding:
     generation:
       # 초기 데이터 임베딩을 수행할지에 대한 옵션
-      enabled: true
+      enabled: false
       batch-size: 128
       row-limit: 0
 

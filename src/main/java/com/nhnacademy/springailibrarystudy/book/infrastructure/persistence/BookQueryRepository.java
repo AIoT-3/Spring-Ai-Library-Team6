@@ -45,7 +45,8 @@ public class BookQueryRepository {
                         book.publisherName,
                         book.publishedDate,
                         book.price,
-                        book.imageUrl
+                        book.imageUrl,
+                        Expressions.nullExpression(Double.class)
                 ))
                 .from(book)
                 .where(where)

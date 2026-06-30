@@ -21,7 +21,7 @@ public class RagRecommendationFallbackBuilder {
     private String reason(RagBookCandidate candidate) {
         if (StringUtils.hasText(candidate.description())) {
             return """
-                    LLM 추천 생성에 실패하여 검색 결과 순서대로 표시합니다. 책 소개: %s
+                    LLM 추천 생성에 실패하여 검색 결과 순서대로 표시합니다.%n 책 소개: %s
                     """.formatted(trim(candidate.description())).trim();
         }
 

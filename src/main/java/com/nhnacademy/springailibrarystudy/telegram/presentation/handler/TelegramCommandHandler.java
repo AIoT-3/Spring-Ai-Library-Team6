@@ -29,12 +29,13 @@ public class TelegramCommandHandler {
         String text = switch (command) {
             case "/start" -> messageFormatter.formatStartMessage();
             case "/help" -> messageFormatter.formatHelpMessage();
-            default -> "지원하지 않는 명령어입니다. /help 를 입력해 사용법을 확인하세요.";
+            default -> messageFormatter.formatUnsupportedCommandMessage();
         };
 
         SendMessage response = new SendMessage();
         response.setChatId(String.valueOf(message.getChatId()));
         response.setText(text);
+        response.setParseMode(messageFormatter.parseMode());
         return List.of(response);
     }
 

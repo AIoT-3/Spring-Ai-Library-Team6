@@ -53,7 +53,7 @@ public class TelegramMessageHandler {
             return List.of(response);
         } catch (RuntimeException e) {
             log.warn("telegram search message를 처리하는 중 오류가 발생했습니다. chatId={}", message.getChatId(), e);
-            return List.of(createMessage(message, "검색 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."));
+            return List.of(createMessage(message, messageFormatter.formatSearchErrorMessage()));
         }
     }
 
@@ -61,6 +61,7 @@ public class TelegramMessageHandler {
         SendMessage response = new SendMessage();
         response.setChatId(String.valueOf(message.getChatId()));
         response.setText(text);
+        response.setParseMode(messageFormatter.parseMode());
         return response;
     }
 

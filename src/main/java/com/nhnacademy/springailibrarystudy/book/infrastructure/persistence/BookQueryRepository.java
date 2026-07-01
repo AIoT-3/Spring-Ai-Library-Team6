@@ -1,7 +1,6 @@
 package com.nhnacademy.springailibrarystudy.book.infrastructure.persistence;
 
 import com.nhnacademy.springailibrarystudy.book.domain.QBook;
-import com.nhnacademy.springailibrarystudy.book.domain.QBookEmbedding;
 import com.nhnacademy.springailibrarystudy.search.presentation.dto.BookSearchItemResponse;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
@@ -12,6 +11,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.ai.model.ollama.autoconfigure.OllamaEmbeddingProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -24,9 +24,10 @@ import org.springframework.util.StringUtils;
 public class BookQueryRepository {
 
     private static final QBook book = QBook.book;
-    private static final QBookEmbedding bookEmbedding = QBookEmbedding.bookEmbedding;
 
+    private final JdbcTemplate jdbcTemplate;
     private final JPAQueryFactory queryFactory;
+    private final OllamaEmbeddingProperties embeddingProperties;
 
     public Page<BookSearchItemResponse> searchByKeyword(
             String query, String isbn13, String kdcCode, Pageable pageable
@@ -98,13 +99,9 @@ public class BookQueryRepository {
         return builder;
     }
 
-
-
-    private final JdbcTemplate jdbcTemplate;
-
     public Page<BookSearchItemResponse> vectorSearch(Pageable pageable, float[] vector) {
         String vectorString = arrayToVectorString(vector);
-        String model = "bge-m3";
+        String model = embeddingProperties.getModel();
 
         List<BookSearchItemResponse> results = jdbcTemplate.query(
                 """

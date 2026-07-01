@@ -39,7 +39,7 @@ public class TelegramMessageHandler {
         try {
             // RAG 답변 생성
             GenerateRagAnswerResult result = searchBooksRagUseCase.answer(
-                    new GenerateRagAnswerCommand(question, userKey, 10, 5)
+                    GenerateRagAnswerCommand.of(question, userKey)
             );
 
             // 답변 메시지 생성

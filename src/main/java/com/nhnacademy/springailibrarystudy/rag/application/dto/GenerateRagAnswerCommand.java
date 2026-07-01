@@ -47,6 +47,11 @@ public record GenerateRagAnswerCommand(
                 question, null, DEFAULT_CANDIDATE_TOP_K, DEFAULT_RECOMMENDATION_TOP_K);
     }
 
+    public static GenerateRagAnswerCommand of(String question, String userKey) {
+        return new GenerateRagAnswerCommand(
+                question, userKey, DEFAULT_CANDIDATE_TOP_K, DEFAULT_RECOMMENDATION_TOP_K);
+    }
+
     private static String normalize(String value) {
         return value == null ? null : value.trim();
     }

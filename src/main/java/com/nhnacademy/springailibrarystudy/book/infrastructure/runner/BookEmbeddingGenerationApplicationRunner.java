@@ -3,8 +3,9 @@ package com.nhnacademy.springailibrarystudy.book.infrastructure.runner;
 import com.nhnacademy.springailibrarystudy.book.application.GenerateBookEmbeddingsUseCase;
 import com.nhnacademy.springailibrarystudy.book.application.dto.BookEmbeddingGenerationOptions;
 import com.nhnacademy.springailibrarystudy.book.application.dto.BookEmbeddingGenerationResult;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.ai.model.ollama.autoconfigure.OllamaEmbeddingProperties;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -19,28 +20,18 @@ import org.springframework.stereotype.Component;
         name = "enabled",
         havingValue = "true"
 )
+@RequiredArgsConstructor
 public class BookEmbeddingGenerationApplicationRunner implements ApplicationRunner {
 
     private final BookEmbeddingGenerationProperties properties;
     private final GenerateBookEmbeddingsUseCase generateBookEmbeddingsUseCase;
-    private final String embeddingModel;
-
-    public BookEmbeddingGenerationApplicationRunner(
-            BookEmbeddingGenerationProperties properties,
-            GenerateBookEmbeddingsUseCase generateBookEmbeddingsUseCase,
-//            상황에 ollama로 고정, ollama 설정은 docs 참조
-            @Value("${spring.ai.ollama.embedding.model}") String embeddingModel
-    ) {
-        this.properties = properties;
-        this.generateBookEmbeddingsUseCase = generateBookEmbeddingsUseCase;
-        this.embeddingModel = embeddingModel;
-    }
+    private final OllamaEmbeddingProperties embeddingProperties;
 
     @Override
     public void run(ApplicationArguments args) {
         // Book embedding 옵션 생성
         BookEmbeddingGenerationOptions options = new BookEmbeddingGenerationOptions(
-                embeddingModel,
+                embeddingProperties.getModel(),
                 properties.batchSize(),
                 properties.rowLimit()
         );

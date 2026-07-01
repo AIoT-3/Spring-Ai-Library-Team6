@@ -46,6 +46,11 @@ spring:
       pgvector:
         dimensions: 1024
         initialize-schema: false
+  cache:
+    type: redis
+    redis:
+      time-to-live: 24h
+      cache-null-values: false
 
 book:
   bulk-insert:
@@ -70,3 +75,7 @@ telegram:
     enabled: false # 일단 기본 비활성화
     token: ${TELEGRAM_BOT_TOKEN}
     username: ${TELEGRAM_BOT_USERNAME}
+
+logging:
+  level:
+    com.nhnacademy.springailibrarystudy: debug

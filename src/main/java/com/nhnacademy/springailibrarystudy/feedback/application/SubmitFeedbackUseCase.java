@@ -11,6 +11,7 @@ import com.nhnacademy.springailibrarystudy.feedback.infrastructure.SearchFeedbac
 import com.nhnacademy.springailibrarystudy.global.exception.BusinessException;
 import com.nhnacademy.springailibrarystudy.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -23,6 +24,7 @@ public class SubmitFeedbackUseCase {
     private final FindBookUseCase findBookUseCase;
 
     @Transactional
+    @CacheEvict(cacheNames = "userPreferenceVectors", key = "#command.userKey()")
     public SubmitFeedbackResult submit(SubmitFeedbackCommand command) {
         // 입력 검증
         Objects.requireNonNull(command, "command는 null일 수 없습니다.");

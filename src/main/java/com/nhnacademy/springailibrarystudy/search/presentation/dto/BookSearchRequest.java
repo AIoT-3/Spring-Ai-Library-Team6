@@ -17,6 +17,10 @@ public record BookSearchRequest(
         SearchType searchType,
 
         // [step-2 04.벡터검색]을 위한 필드 추가
+        // FIXME: 필요 없다면 제거 고려
         float[] vector
 ) {
+    public static BookSearchRequest hybrid(String query) {
+        return new BookSearchRequest(query, null, null, SearchType.HYBRID, null);
+    }
 }

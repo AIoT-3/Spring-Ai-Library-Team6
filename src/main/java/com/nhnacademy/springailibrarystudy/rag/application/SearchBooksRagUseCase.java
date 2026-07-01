@@ -42,12 +42,18 @@ public class SearchBooksRagUseCase {
         log.info("RAG 추천 시작: question='{}', candidateTopK={}, recommendationTopK={}",
                 command.question(), command.candidateTopK(), command.recommendationTopK());
 
-        List<RagBookCandidate> candidates =
-                hybridBookCandidateSearcher.search(command.question(), command.candidateTopK());
+        // Rag 후보들 검색
+        List<RagBookCandidate> candidates = hybridBookCandidateSearcher.search(
+                command.question(),
+                command.candidateTopK(),
+                command.userKey()
+        );
         if (candidates.isEmpty()) {
             return fallback("질문과 관련된 도서를 찾지 못했습니다.", candidates, command.recommendationTopK());
         }
 
+        // FIXME: 개인화 reranking이 적용된 후보들에 대해 rrf 점수 기반 필터링은 의미가 약해짐 (개인화로 보정된 후보들이 잘릴 수 있음)
+        // FIXME: RRF 점수 기반 필터링을 적용하고자 한다면, 위 rag 후보를 가져오는 과정에서 개인화 reranking의 여부에 따라 선택적으로 적용하는 것 고려 (지금은 주석처리 돼있어서 그냥 둠)
         //RRF 점수 기반 팔티렁을 통해 얻어낸 도서 {DEFAULT_BATCH_SIZE}권에서
         //RRF 점수가 기준치를 넘어가는 도서들에 대해, AI에게 전달할 도서 수 만큼만 걸러냄
         List<RagBookCandidate> filteredCandidates = candidates.stream()
@@ -57,9 +63,11 @@ public class SearchBooksRagUseCase {
         // RRF 점수 기반 필터링 대신, RRF 점수 기준 내림차순으로 정렬된 도서들 중 상위 10권만 필터링
 
         for (RagBookCandidate ragBookCandidate : filteredCandidates) {
+            // FIXME: 로깅 레벨을 info에서 debug로 변경하는 것 고려
             log.info("id: {}, title: {}, rrfScore: {}", ragBookCandidate.id(), ragBookCandidate.title(), ragBookCandidate.rrfScore());
         }
 
+        // 책 추천 생성
         String context = ragContextBuilder.build(filteredCandidates);
         Prompt prompt = ragPromptBuilder.build(command.question(), context, command.recommendationTopK());
         List<RagBookRecommendation> books = recommend(prompt, filteredCandidates, command.recommendationTopK());

@@ -19,6 +19,12 @@ public record BookSearchItemResponse(
         Double rrfScore
 
 ) {
+    public BookSearchItemResponse(Long id, String isbn13, String volumeTitle, String title,
+                                  String authorName, String publisherName, LocalDate publishedDate,
+                                  BigDecimal price, String imageUrl, String description) {
+        this(id, isbn13, volumeTitle, title, authorName, publisherName, publishedDate, price, imageUrl, description, null, null);
+    }
+
     public static BookSearchItemResponse ofKeyword(Long id, String isbn13, String volumeTitle, String title,
                                                    String authorName, String publisherName, LocalDate publishedDate,
                                                    BigDecimal price, String imageUrl, String description) {

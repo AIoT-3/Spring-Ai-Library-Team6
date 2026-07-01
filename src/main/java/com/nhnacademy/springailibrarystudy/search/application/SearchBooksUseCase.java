@@ -21,6 +21,7 @@ public class SearchBooksUseCase {
             case KEYWORD -> searchBooksByKeywordUseCase.search(request, pageable);
             case VECTOR -> searchBooksByVectorUseCase.search(request, pageable);
             case HYBRID -> searchBooksHybridUseCase.search(request, pageable);
+            case RAG -> null;
         };
     }
 

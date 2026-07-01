@@ -39,6 +39,7 @@ public class BookQueryRepository {
                 .select(Projections.constructor(
                         BookSearchItemResponse.class,
                         book.id,
+                        book.isbn13,
                         book.volumeTitle,
                         book.title,
                         book.authorName,
@@ -46,7 +47,7 @@ public class BookQueryRepository {
                         book.publishedDate,
                         book.price,
                         book.imageUrl,
-                        Expressions.nullExpression(Double.class)
+                        book.description
                 ))
                 .from(book)
                 .where(where)

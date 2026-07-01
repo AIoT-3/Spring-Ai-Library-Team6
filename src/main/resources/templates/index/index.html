@@ -23,15 +23,17 @@
 <form th:action="@{/}" method="get" class="search-form">
   <!-- 검색 방식 선택 (ISBN 또는 키워드) -->
   <select name="searchType">
-    <option value="keyword" th:selected="${request.searchType == null or request.searchType == 'keyword'}">키워드</option>
-    <option value="isbn" th:selected="${request.searchType == 'isbn'}">ISBN</option>
+    <option value="KEYWORD" th:selected="${request.searchType == null or request.searchType == 'KEYWORD'}">키워드</option>
+    <option value="VECTOR" th:selected="${request.searchType == 'VECTOR'}">벡터</option>
+    <option value="HYBRID" th:selected="${request.searchType == 'HYBRID'}">하이브리드</option>
+    <option value="RAG" th:selected="${request.searchType == 'RAG'}">RAG</option>
   </select>
 
   <!-- 검색어 입력 -->
   <input type="text"
-         name="keyword"
+         name="query"
          placeholder="검색어를 입력하세요"
-         th:value="${request.keyword}">
+         th:value="${request.query}">
 
   <!-- 검색 버튼 -->
   <button type="submit">검색</button>
@@ -66,8 +68,16 @@
     <p>
       <strong>저자:</strong> <span th:text="${book.authorName}">저자명</span><br>
       <strong>출판사:</strong> <span th:text="${book.publisherName}">출판사</span><br>
-      <strong>출판일:</strong> <span th:text="${book.firstPublishDate}">날짜</span><br>
-      <strong>ISBN:</strong> <span th:text="${book.isbn}">ISBN</span>
+      <strong>출판일:</strong> <span th:text="${book.publishedDate}">날짜</span><br>
+      <strong>ISBN:</strong> <span th:text="${book.isbn13}">ISBN</span><br>
+      <th:block th:if="${book.similarity != null}">
+        <strong>similarity: </strong>
+        <span th:text="${book.similarity}">0</span>
+      </th:block><br>
+      <th:block th:if="${book.rrfScore != null}">
+        <strong>rrfScore: </strong>
+        <span th:text="${book.rrfScore}">0</span>
+      </th:block>
     </p>
     <div style="clear: both;"></div>
   </div>
@@ -79,7 +89,7 @@
     <ul class="pagination">
       <!-- 이전 페이지 -->
       <li th:class="${page.first ? 'disabled' : ''}">
-        <a th:href="@{/(page=${page.number - 1}, keyword=${request.keyword}, searchType=${request.searchType})}">
+        <a th:href="@{/(page=${page.number - 1}, keyword=${request.query}, searchType=${request.searchType})}">
           이전
         </a>
       </li>
@@ -87,13 +97,13 @@
       <!-- 페이지 번호들 -->
       <li th:each="pageNum : ${#numbers.sequence(0, page.totalPages - 1)}"
           th:class="${pageNum == page.number ? 'active' : ''}">
-        <a th:href="@{/(page=${pageNum}, keyword=${request.keyword}, searchType=${request.searchType})}"
+        <a th:href="@{/(page=${pageNum}, keyword=${request.query}, searchType=${request.searchType})}"
            th:text="${pageNum + 1}">1</a>
       </li>
 
       <!-- 다음 페이지 -->
       <li th:class="${page.last ? 'disabled' : ''}">
-        <a th:href="@{/(page=${page.number + 1}, keyword=${request.keyword}, searchType=${request.searchType})}">
+        <a th:href="@{/(page=${page.number + 1}, keyword=${request.query}, searchType=${request.searchType})}">
           다음
         </a>
       </li>

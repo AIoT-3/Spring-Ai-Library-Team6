@@ -19,21 +19,22 @@ public record BookSearchItemResponse(
         Double rrfScore
 
 ) {
-    public BookSearchItemResponse(Long id, String volumeTitle, String title,
-                                  String authorName, String publisherName, LocalDate publishedDate,
-                                  BigDecimal price, String imageUrl) {
-        this(id, null, volumeTitle, title, authorName, publisherName, publishedDate, price, imageUrl, null, null, null);
+    public static BookSearchItemResponse ofKeyword(Long id, String isbn13, String volumeTitle, String title,
+                                                   String authorName, String publisherName, LocalDate publishedDate,
+                                                   BigDecimal price, String imageUrl, String description) {
+        return new BookSearchItemResponse(id, isbn13, volumeTitle, title, authorName, publisherName, publishedDate, price, imageUrl, description, null, null);
+    }
+    public static BookSearchItemResponse ofVector(Long id, String isbn13, String volumeTitle, String title,
+                                                  String authorName, String publisherName, LocalDate publishedDate,
+                                                  BigDecimal price, String imageUrl, String description,
+                                                  Double similarity) {
+        return new BookSearchItemResponse(id, isbn13, volumeTitle, title, authorName, publisherName, publishedDate, price, imageUrl, description, similarity, null);
+    }
+    public static BookSearchItemResponse ofHybrid(Long id, String isbn13, String volumeTitle, String title,
+                                                  String authorName, String publisherName, LocalDate publishedDate,
+                                                  BigDecimal price, String imageUrl, String description,
+                                                  Double similarity, Double rrfScore) {
+        return new BookSearchItemResponse(id, isbn13, volumeTitle, title, authorName, publisherName, publishedDate, price, imageUrl, description, similarity, rrfScore);
     }
 
-    public BookSearchItemResponse(Long id, String isbn13, String volumeTitle, String title,
-                                  String authorName, String publisherName, LocalDate publishedDate,
-                                  BigDecimal price, String imageUrl, String description, Double similarity) {
-        this(id, isbn13, volumeTitle, title, authorName, publisherName, publishedDate, price, imageUrl, description, similarity, null);
-    }
-
-    public BookSearchItemResponse(Long id, String volumeTitle, String title,
-                                  String authorName, String publisherName, LocalDate publishedDate,
-                                  BigDecimal price, String imageUrl, Double similarity) {
-        this(id, null, volumeTitle, title, authorName, publisherName, publishedDate, price, imageUrl, null, similarity, null);
-    }
 }

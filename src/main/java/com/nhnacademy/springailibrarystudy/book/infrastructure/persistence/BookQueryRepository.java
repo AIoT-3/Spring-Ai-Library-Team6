@@ -126,7 +126,7 @@ public class BookQueryRepository {
                 ORDER BY be.embedding <=> ?::vector
                 LIMIT ? OFFSET ?
                 """,
-                (rs, rowNum) -> new BookSearchItemResponse(
+                (rs, rowNum) -> BookSearchItemResponse.ofVector(
                         rs.getLong("id"),
                         rs.getString("isbn13"),
                         rs.getString("volume_title"),

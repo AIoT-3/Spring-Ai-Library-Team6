@@ -1,6 +1,7 @@
 package com.nhnacademy.springailibrarystudy.rag.infrastructure;
 
 import com.nhnacademy.springailibrarystudy.rag.application.dto.RagBookCandidate;
+import com.nhnacademy.springailibrarystudy.review.application.ReviewInfoEnricher;
 import com.nhnacademy.springailibrarystudy.search.application.SearchBooksHybridUseCase;
 import com.nhnacademy.springailibrarystudy.search.domain.SearchType;
 import com.nhnacademy.springailibrarystudy.search.presentation.dto.BookSearchItemResponse;
@@ -18,12 +19,18 @@ import org.springframework.stereotype.Component;
 public class HybridBookCandidateSearcher {
 
     private final SearchBooksHybridUseCase searchBooksHybridUseCase;
+    private final ReviewInfoEnricher reviewInfoEnricher;
 
     public List<RagBookCandidate> search(String query, int candidateTopK) {
         BookSearchRequest request = new BookSearchRequest(query, null, null, SearchType.HYBRID, null);
 
-        List<RagBookCandidate> candidates = searchBooksHybridUseCase.search(request, PageRequest.of(0, candidateTopK))
-                .getContent().stream()
+        List<BookSearchItemResponse> searchResults =
+                searchBooksHybridUseCase.search(request, PageRequest.of(0, candidateTopK)).getContent();
+
+        //enrich를 거치기 위함
+        List<BookSearchItemResponse> enrichedResults = reviewInfoEnricher.enrich(searchResults);
+
+        List<RagBookCandidate> candidates = enrichedResults.stream()
                 .map(HybridBookCandidateSearcher::toCandidate)
                 .toList();
 
@@ -47,7 +54,10 @@ public class HybridBookCandidateSearcher {
                 item.description(),
                 item.imageUrl(),
                 item.similarity(),
-                item.rrfScore()
+                item.rrfScore(),
+                item.averageRating(),
+                item.reviewCount(),
+                item.reviewSummary()
         );
     }
 }

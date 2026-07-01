@@ -46,6 +46,20 @@ spring:
       pgvector:
         dimensions: 1024
         initialize-schema: false
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    listener:
+      simple:
+        concurrency: 3
+        max-concurrency: 5
+        acknowledge-mode: auto
+
+rabbitmq:
+  queue:
+    review-summary: nhnacademy-library-review
 
 book:
   bulk-insert:

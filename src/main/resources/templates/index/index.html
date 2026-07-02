@@ -39,9 +39,9 @@
   <button type="submit">검색</button>
 </form>
 
-<!-- AI 로딩 메시지 (검색 중일 때 표시) -->
+<!-- 로딩 메시지 (검색 중일 때 표시) -->
 <div id="loading" class="loading">
-  AI가 최적의 도서를 찾고 답변을 생성 중입니다...<br>
+  도서를 찾는 중입니다...<br>
   이 과정은 수 초가 걸릴 수 있습니다.
 </div>
 
@@ -89,7 +89,7 @@
     <ul class="pagination">
       <!-- 이전 페이지 -->
       <li th:class="${page.first ? 'disabled' : ''}">
-        <a th:href="@{/(page=${page.number - 1}, keyword=${request.query}, searchType=${request.searchType})}">
+        <a th:href="@{/(page=${page.number - 1}, query=${request.query}, searchType=${request.searchType})}">
           이전
         </a>
       </li>
@@ -97,13 +97,13 @@
       <!-- 페이지 번호들 -->
       <li th:each="pageNum : ${#numbers.sequence(0, page.totalPages - 1)}"
           th:class="${pageNum == page.number ? 'active' : ''}">
-        <a th:href="@{/(page=${pageNum}, keyword=${request.query}, searchType=${request.searchType})}"
+        <a th:href="@{/(page=${pageNum}, query=${request.query}, searchType=${request.searchType})}"
            th:text="${pageNum + 1}">1</a>
       </li>
 
       <!-- 다음 페이지 -->
       <li th:class="${page.last ? 'disabled' : ''}">
-        <a th:href="@{/(page=${page.number + 1}, keyword=${request.query}, searchType=${request.searchType})}">
+        <a th:href="@{/(page=${page.number + 1}, query=${request.query}, searchType=${request.searchType})}">
           다음
         </a>
       </li>

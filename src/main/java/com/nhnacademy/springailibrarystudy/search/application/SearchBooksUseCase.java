@@ -5,6 +5,7 @@ import com.nhnacademy.springailibrarystudy.search.domain.SearchType;
 import com.nhnacademy.springailibrarystudy.search.presentation.dto.BookSearchItemResponse;
 import com.nhnacademy.springailibrarystudy.search.presentation.dto.BookSearchRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SearchBooksUseCase {
@@ -26,10 +28,11 @@ public class SearchBooksUseCase {
             case KEYWORD -> searchBooksByKeywordUseCase.search(request, pageable);
             case VECTOR -> searchBooksByVectorUseCase.search(request, pageable);
             case HYBRID -> searchBooksHybridUseCase.search(request, pageable);
-            case RAG -> null;
+            case RAG -> Page.empty(pageable);
         };
 
         List<BookSearchItemResponse> enrichedContent = reviewInfoEnricher.enrich(result.getContent());
+
         return new PageImpl<>(enrichedContent, pageable, result.getTotalElements());
     }
 

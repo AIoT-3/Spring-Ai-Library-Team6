@@ -45,13 +45,17 @@ public class SearchBooksRagUseCase {
             return fallback("질문을 입력해주세요.", List.of(), command.recommendationTopK());
         }
 
+        boolean personalizedRequest = StringUtils.hasText(command.userKey());
+
         // 캐시 조회
-        Optional<String> cachedJson = semanticCacheService.get(command.question());
-        if (cachedJson.isPresent()) {
-            GenerateRagAnswerResult cached = deserialize(cachedJson.get());
-            if (cached != null) {
-                log.info("[RAG] 캐시 적중으로 즉시 반환: question='{}'", command.question());
-                return cached;
+        if (!personalizedRequest) {
+            Optional<String> cachedJson = semanticCacheService.get(command.question());
+            if (cachedJson.isPresent()) {
+                GenerateRagAnswerResult cached = deserialize(cachedJson.get());
+                if (cached != null) {
+                    log.info("[RAG] 캐시 적중으로 즉시 반환: question='{}'", command.question());
+                    return cached;
+                }
             }
         }
 
@@ -105,7 +109,9 @@ public class SearchBooksRagUseCase {
         );
 
         // 성공(fallback=false) 결과만 캐시에 저장
-        cacheIfSuccessful(command.question(), finalResult);
+        if (!personalizedRequest) {
+            cacheIfSuccessful(command.question(), finalResult);
+        }
 
         return finalResult;
     }

@@ -35,13 +35,8 @@ public class HybridBookCandidateSearcher {
         List<BookSearchItemResponse> rerankedBooks =
                 rerankBookSearchResultsUseCase.rerank(searchedBooks, userKey);
 
-        // RAG 후보로 변환
-        List<RagBookCandidate> candidates = rerankedBooks.stream()
-        List<BookSearchItemResponse> searchResults =
-                searchBooksHybridUseCase.search(request, PageRequest.of(0, candidateTopK)).getContent();
-
         //enrich를 거치기 위함
-        List<BookSearchItemResponse> enrichedResults = reviewInfoEnricher.enrich(searchResults);
+        List<BookSearchItemResponse> enrichedResults = reviewInfoEnricher.enrich(rerankedBooks);
 
         List<RagBookCandidate> candidates = enrichedResults.stream()
                 .map(HybridBookCandidateSearcher::toCandidate)

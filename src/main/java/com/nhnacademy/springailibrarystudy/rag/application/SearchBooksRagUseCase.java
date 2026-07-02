@@ -79,8 +79,7 @@ public class SearchBooksRagUseCase {
         // RRF 점수 기반 필터링 대신, RRF 점수 기준 내림차순으로 정렬된 도서들 중 상위 10권만 필터링
 
         for (RagBookCandidate ragBookCandidate : filteredCandidates) {
-            // FIXME: 로깅 레벨을 info에서 debug로 변경하는 것 고려
-            log.info("id: {}, title: {}, rrfScore: {}", ragBookCandidate.id(), ragBookCandidate.title(), ragBookCandidate.rrfScore());
+            log.debug("id: {}, title: {}, rrfScore: {}", ragBookCandidate.id(), ragBookCandidate.title(), ragBookCandidate.rrfScore());
         }
 
         // 책 추천 생성

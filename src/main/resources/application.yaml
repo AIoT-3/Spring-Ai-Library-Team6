@@ -51,6 +51,20 @@ spring:
     redis:
       time-to-live: 24h
       cache-null-values: false
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    listener:
+      simple:
+        concurrency: 3
+        max-concurrency: 5
+        acknowledge-mode: auto
+
+rabbitmq:
+  queue:
+    review-summary: nhnacademy-library-review
 
 book:
   bulk-insert:

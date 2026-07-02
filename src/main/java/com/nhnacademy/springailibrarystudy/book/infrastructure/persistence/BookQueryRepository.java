@@ -40,6 +40,7 @@ public class BookQueryRepository {
                 .select(Projections.constructor(
                         BookSearchItemResponse.class,
                         book.id,
+                        book.isbn13,
                         book.volumeTitle,
                         book.title,
                         book.authorName,
@@ -47,7 +48,7 @@ public class BookQueryRepository {
                         book.publishedDate,
                         book.price,
                         book.imageUrl,
-                        Expressions.nullExpression(Double.class)
+                        book.description
                 ))
                 .from(book)
                 .where(where)
@@ -99,11 +100,14 @@ public class BookQueryRepository {
         return builder;
     }
 
+
+
+    private static final int VECTOR_SEARCH_LIMIT = 100;
     public Page<BookSearchItemResponse> vectorSearch(Pageable pageable, float[] vector) {
         String vectorString = arrayToVectorString(vector);
         String model = embeddingProperties.getModel();
 
-        List<BookSearchItemResponse> results = jdbcTemplate.query(
+        List<BookSearchItemResponse> allResults = jdbcTemplate.query(
                 """
                 SELECT
                     b.id,
@@ -121,9 +125,9 @@ public class BookQueryRepository {
                 JOIN books b ON b.id = be.book_id
                 WHERE be.embedding_model = ?
                 ORDER BY be.embedding <=> ?::vector
-                LIMIT ? OFFSET ?
+                LIMIT ?
                 """,
-                (rs, rowNum) -> new BookSearchItemResponse(
+                (rs, rowNum) -> BookSearchItemResponse.ofVector(
                         rs.getLong("id"),
                         rs.getString("isbn13"),
                         rs.getString("volume_title"),
@@ -136,16 +140,14 @@ public class BookQueryRepository {
                         rs.getString("description"),
                         rs.getDouble("similarity")
                 ),
-                vectorString, model, vectorString, pageable.getPageSize(), pageable.getOffset()
+                vectorString, model, vectorString, VECTOR_SEARCH_LIMIT
         );
 
-        Long total = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM book_embeddings WHERE embedding_model = ?",
-                Long.class,
-                model
-        );
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), allResults.size());
+        List<BookSearchItemResponse> pageContent = allResults.subList(start, end);
 
-        return new PageImpl<>(results, pageable, total == null ? 0 : total);
+        return new PageImpl<>(pageContent, pageable, allResults.size());
     }
 
     private String arrayToVectorString(float[] vector) {

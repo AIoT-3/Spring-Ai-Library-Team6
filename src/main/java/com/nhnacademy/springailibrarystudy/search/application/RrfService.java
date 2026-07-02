@@ -45,7 +45,7 @@ public class RrfService {
                             original.id(), original.isbn13(), original.volumeTitle(), original.title(),
                             original.authorName(), original.publisherName(), original.publishedDate(),
                             original.price(), original.imageUrl(), original.description(), original.similarity(),
-                            rrfScore
+                            rrfScore, original.averageRating(), original.reviewCount(), original.reviewSummary()
                     );
                 })
                 .toList();

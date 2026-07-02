@@ -2,6 +2,7 @@ package com.nhnacademy.springailibrarystudy.rag.infrastructure;
 
 import com.nhnacademy.springailibrarystudy.personalization.application.RerankBookSearchResultsUseCase;
 import com.nhnacademy.springailibrarystudy.rag.application.dto.RagBookCandidate;
+import com.nhnacademy.springailibrarystudy.review.application.ReviewInfoEnricher;
 import com.nhnacademy.springailibrarystudy.search.application.SearchBooksHybridUseCase;
 import com.nhnacademy.springailibrarystudy.search.presentation.dto.BookSearchItemResponse;
 import com.nhnacademy.springailibrarystudy.search.presentation.dto.BookSearchRequest;
@@ -20,6 +21,7 @@ public class HybridBookCandidateSearcher {
 
     private final SearchBooksHybridUseCase searchBooksHybridUseCase;
     private final RerankBookSearchResultsUseCase rerankBookSearchResultsUseCase;
+    private final ReviewInfoEnricher reviewInfoEnricher;
 
     public List<RagBookCandidate> search(String query, int candidateTopK, String userKey) {
 
@@ -35,6 +37,13 @@ public class HybridBookCandidateSearcher {
 
         // RAG 후보로 변환
         List<RagBookCandidate> candidates = rerankedBooks.stream()
+        List<BookSearchItemResponse> searchResults =
+                searchBooksHybridUseCase.search(request, PageRequest.of(0, candidateTopK)).getContent();
+
+        //enrich를 거치기 위함
+        List<BookSearchItemResponse> enrichedResults = reviewInfoEnricher.enrich(searchResults);
+
+        List<RagBookCandidate> candidates = enrichedResults.stream()
                 .map(HybridBookCandidateSearcher::toCandidate)
                 .toList();
 
@@ -58,7 +67,10 @@ public class HybridBookCandidateSearcher {
                 item.description(),
                 item.imageUrl(),
                 item.similarity(),
-                item.rrfScore()
+                item.rrfScore(),
+                item.averageRating(),
+                item.reviewCount(),
+                item.reviewSummary()
         );
     }
 }

@@ -1,5 +1,7 @@
 package com.nhnacademy.springailibrarystudy.rag.application.dto;
 
+import java.math.BigDecimal;
+
 // llm에 의해 추천된 도서
 public record RagBookRecommendation(
         Long id,
@@ -11,6 +13,9 @@ public record RagBookRecommendation(
         String imageUrl,
         Double similarity,
         Double rrfScore,
+        BigDecimal averageRating,
+        Long reviewCount,
+        String reviewSummary,
         String recommendationReason
 ) {
 
@@ -25,6 +30,9 @@ public record RagBookRecommendation(
                 candidate.imageUrl(),
                 candidate.similarity(),
                 candidate.rrfScore(),
+                candidate.averageRating(),
+                candidate.reviewCount(),
+                candidate.reviewSummary(),
                 recommendationReason
         );
     }

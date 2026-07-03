@@ -20,6 +20,8 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             transition: transform 0.15s ease, box-shadow 0.15s ease;
             height: 100%;
+
+            cursor: pointer;
         }
         .book-card:hover {
             transform: translateY(-4px);
@@ -81,6 +83,11 @@
         <span class="text-secondary">(검색 소요 시간: <span th:text="${searchTime}">0.0</span>s)</span>
     </div>
 
+
+
+
+
+
     <!-- 도서 목록: 3열 카드 그리드 -->
     <div th:if="${books == null or books.empty}" class="text-center text-muted py-5">
         검색 결과가 없습니다.
@@ -88,22 +95,25 @@
 
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 mb-4">
         <div class="col" th:each="book : ${books}">
-            <div class="card book-card">
-                <img th:src="${book.imageUrl}" th:alt="${book.title}" class="card-img-top">
-                <div class="card-body">
-                    <h3 class="card-title" th:text="${book.title}">제목</h3>
-                    <p class="card-text text-muted mb-1" th:text="${book.authorName}">저자명</p>
-                    <p class="card-text text-muted mb-1" th:text="${book.publisherName + ' · ' + book.publishedDate}">출판사 · 날짜</p>
-                    <p class="card-text small text-secondary mb-0">
-                        <th:block th:if="${book.similarity != null}">
-                            similarity: <span th:text="${book.similarity}">0</span>
-                        </th:block>
-                        <th:block th:if="${book.rrfScore != null}">
-                            rrfScore: <span th:text="${book.rrfScore}">0</span>
-                        </th:block>
-                    </p>
+            <a th:href="@{/books/{id}(id=${book.id})}"
+               class="text-decoration-none text-reset d-block h-100">
+                <div class="card book-card">
+                    <img th:src="${book.imageUrl}" th:alt="${book.title}" class="card-img-top">
+                    <div class="card-body">
+                        <h3 class="card-title" th:text="${book.title}">제목</h3>
+                        <p class="card-text text-muted mb-1" th:text="${book.authorName}">저자명</p>
+                        <p class="card-text text-muted mb-1" th:text="${book.publisherName + ' · ' + book.publishedDate}">출판사 · 날짜</p>
+                        <p class="card-text small text-secondary mb-0">
+                            <th:block th:if="${book.similarity != null}">
+                                similarity: <span th:text="${book.similarity}">0</span>
+                            </th:block>
+                            <th:block th:if="${book.rrfScore != null}">
+                                rrfScore: <span th:text="${book.rrfScore}">0</span>
+                            </th:block>
+                        </p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 

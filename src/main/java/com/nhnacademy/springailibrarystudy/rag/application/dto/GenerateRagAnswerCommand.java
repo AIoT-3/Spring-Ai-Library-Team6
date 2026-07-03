@@ -29,9 +29,9 @@ public record GenerateRagAnswerCommand(
         this.recommendationTopK = recommendationTopK;
     }
 
-    public static GenerateRagAnswerCommand of(String question) {
+    public static GenerateRagAnswerCommand of(String question, String userkey) {
         return new GenerateRagAnswerCommand(
-                question, null, DEFAULT_CANDIDATE_TOP_K, DEFAULT_RECOMMENDATION_TOP_K);
+                question, userkey, DEFAULT_CANDIDATE_TOP_K, DEFAULT_RECOMMENDATION_TOP_K);
     }
 
     private static String normalize(String value) {

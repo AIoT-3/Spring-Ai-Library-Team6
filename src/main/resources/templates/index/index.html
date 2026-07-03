@@ -82,6 +82,24 @@
     <div style="clear: both;"></div>
   </div>
 </div>
+<!-- ★ 리뷰 정보 (평점/리뷰수 있을 때만 표시. 없으면 신간으로 간주해 아예 숨김) -->
+<div class="review-info" th:if="${book != null and book.averageRating != null and book.reviewCount != null and book.reviewCount > 0}">
+      <span class="review-rating">
+        ★ <span th:text="${#numbers.formatDecimal(book.averageRating, 1, 1)}">0.0</span>/5.0
+        (<span th:text="${book.reviewCount}">0</span>개 리뷰)
+      </span>
+  <p class="review-summary" th:if="${book.reviewSummary != null and !#strings.isEmpty(book.reviewSummary)}"
+     th:text="${book.reviewSummary}">
+    리뷰 요약
+  </p>
+</div>
+<div class="review-info" th:if="${book != null and (book.averageRating == null or book.reviewCount == null or book.reviewCount == 0)}">
+  <span style="color:#999;">아직 리뷰가 없는 도서입니다.</span>
+</div>
+
+<div style="clear: both;"></div>
+</div>
+</div>
 
 <!-- 페이징 -->
 <div th:if="${page != null and page.totalPages > 1}">

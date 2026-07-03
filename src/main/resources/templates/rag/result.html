@@ -37,6 +37,31 @@
                 ISBN: <span th:text="${book.isbn13()}">ISBN</span>
             </p>
             <p th:if="${book.description() != null}" th:text="${book.description()}">도서 설명</p>
+            <!-- ★ 리뷰 정보 (평점/리뷰수 있을 때만 표시) -->
+            <div class="review-info"
+                 th:if="${book.averageRating() != null and book.reviewCount() != null and book.reviewCount() > 0}">
+                <span class="review-rating">
+                    ★ <span th:text="${#numbers.formatDecimal(book.averageRating(), 1, 1)}">0.0</span>/5.0
+                    (<span th:text="${book.reviewCount()}">0</span>개 리뷰)
+                </span>
+                <p class="review-summary"
+                   th:if="${book.reviewSummary() != null and !#strings.isEmpty(book.reviewSummary())}"
+                   th:utext="${
+                        #strings.replace(
+                            #strings.replace(
+                                #strings.replace(
+                                    #strings.replace(book.reviewSummary(), '**장점**', '<b>장점</b>'),
+                                    '**단점**', '<br><br><b>단점</b>'),
+                                '**총평**', '<br><br><b>총평</b>'),
+                            '**', '')
+                   }">
+                    리뷰 요약
+                </p>
+            </div>
+            <div class="review-info"
+                 th:unless="${book.averageRating() != null and book.reviewCount() != null and book.reviewCount() > 0}">
+                <span class="no-review">리뷰가 없는 도서입니다.</span>
+            </div>
             <p>
                 추천 이유:
                 <span th:text="${book.recommendationReason()}">추천 이유</span>

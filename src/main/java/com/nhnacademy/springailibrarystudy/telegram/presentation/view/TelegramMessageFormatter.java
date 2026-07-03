@@ -13,6 +13,7 @@ public class TelegramMessageFormatter {
     // sendMessage의 공식 제한은 4096자
     private static final int MAX_MESSAGE_LENGTH = 3900;
     private static final int MAX_ANSWER_LENGTH = 1200;
+    private static final int MAX_AI_ANSWER_LENGTH = 3500;
     private static final int MAX_REASON_LENGTH = 400;
     // 텔레그램에 마크다운으로 나오는 게 맞는건지 보고도 잘 모르겠음;; 일단 더 깔끔하게 나와서 수정 보류
     private static final String MARKDOWN_V2_SPECIAL_CHARS = "_*[]()~`>#+-=|{}.!";
@@ -71,6 +72,7 @@ public class TelegramMessageFormatter {
 
                 *명령어*
                 `/start` \\- 시작 메시지
+                `/ai` \\- 인공지능의 도움을 받아 적절한 도움을 제공합니다.
                 `/help` \\- 도움말
                 """;
     }
@@ -81,6 +83,22 @@ public class TelegramMessageFormatter {
 
     public String formatSearchErrorMessage() {
         return "검색 처리 중 오류가 발생했습니다\\. 잠시 후 다시 시도해주세요\\.";
+    }
+
+    public String formatAiAnswer(String answer) {
+        if (answer == null || answer.isBlank()) {
+            return formatAiErrorMessage();
+        }
+
+        return "*AI 답변*" + "\n\n" + markdownText(answer.trim(), MAX_AI_ANSWER_LENGTH);
+    }
+
+    public String formatAiUsageHintMessage() {
+        return "질문을 입력해주세요\\. 예: `/ai 자바 책 추천해줘`";
+    }
+
+    public String formatAiErrorMessage() {
+        return "AI 응답 생성 중 오류가 발생했습니다\\. 잠시 후 다시 시도해주세요\\.";
     }
 
     private String formatBook(int number, RagBookRecommendation item) {

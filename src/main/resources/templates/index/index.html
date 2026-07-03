@@ -64,7 +64,7 @@
     <img th:src="${book.imageUrl}" th:alt="${book.title}" style="max-width: 100px; float: left; margin-right: 15px;">
 
     <!-- 도서 정보 -->
-    <h3 th:text="${book.title}">제목</h3>
+    <h3><a th:href="@{/books/{id}(id=${book.id})}" th:text="${book.title}">제목</a></h3>
     <p>
       <strong>저자:</strong> <span th:text="${book.authorName}">저자명</span><br>
       <strong>출판사:</strong> <span th:text="${book.publisherName}">출판사</span><br>

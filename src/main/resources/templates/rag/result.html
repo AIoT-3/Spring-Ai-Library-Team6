@@ -25,7 +25,7 @@
         <p th:if="${#lists.isEmpty(books)}">추천할 도서를 찾지 못했습니다.</p>
 
         <article th:each="book : ${books}">
-            <h3 th:text="${book.title()}">도서 제목</h3>
+            <h3><a th:href="@{/books/{id}(id=${book.id})}" th:text="${book.title}">제목</a></h3>
             <img th:if="${book.imageUrl() != null}" th:src="${book.imageUrl()}" alt="" width="120">
             <p>
                 <span th:if="${book.authorName() != null}" th:text="${book.authorName()}">저자</span>
@@ -44,17 +44,10 @@
                     ★ <span th:text="${#numbers.formatDecimal(book.averageRating(), 1, 1)}">0.0</span>/5.0
                     (<span th:text="${book.reviewCount()}">0</span>개 리뷰)
                 </span>
+
                 <p class="review-summary"
                    th:if="${book.reviewSummary() != null and !#strings.isEmpty(book.reviewSummary())}"
-                   th:utext="${
-                        #strings.replace(
-                            #strings.replace(
-                                #strings.replace(
-                                    #strings.replace(book.reviewSummary(), '**장점**', '<b>장점</b>'),
-                                    '**단점**', '<br><br><b>단점</b>'),
-                                '**총평**', '<br><br><b>총평</b>'),
-                            '**', '')
-                   }">
+                   th:utext="${#strings.replace(#strings.replace(#strings.replace(#strings.replace(book.reviewSummary(), '**', ''), '장점:', '<b>장점</b>:'), '단점:', '<br/><br/><b>단점</b>:'), '총평:', '<br/><br/><b>총평</b>:')}">
                     리뷰 요약
                 </p>
             </div>
@@ -62,7 +55,6 @@
                  th:unless="${book.averageRating() != null and book.reviewCount() != null and book.reviewCount() > 0}">
                 <span class="no-review">리뷰가 없는 도서입니다.</span>
             </div>
-            <p>
                 추천 이유:
                 <span th:text="${book.recommendationReason()}">추천 이유</span>
             </p>

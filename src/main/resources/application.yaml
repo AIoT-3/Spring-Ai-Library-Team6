@@ -32,9 +32,8 @@ spring:
       chat:
         model: qwen3.5:9b
         think: false
-        format: json
         num-ctx: 8192
-        num-predict: 2048
+        num-predict: 4096
       embedding:
         model: bge-m3
     openai:
@@ -89,7 +88,3 @@ telegram:
     enabled: false # 일단 기본 비활성화
     token: ${TELEGRAM_BOT_TOKEN}
     username: ${TELEGRAM_BOT_USERNAME}
-
-logging:
-  level:
-    com.nhnacademy.springailibrarystudy: debug

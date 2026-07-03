@@ -28,8 +28,6 @@ public class RrfService {
             BookSearchItemResponse book = vectorSearchResponse.get(i);
             // 1 / (k + rank) 점수 누적
             rrfScores.put(book.id(), rrfScores.getOrDefault(book.id(), 0.0) + 1.0 / (RRF_K + i + 1));
-            // fixme
-            // 이미 필드를 가지고 있어서 기존의 키워드 결과에 이미 존재하는 경우, 벡터 검색에서 추출된 유사도 정보를 업데이트하는 코드 부분 삭제하였음
             bookMap.put(book.id(), book);
         }
 

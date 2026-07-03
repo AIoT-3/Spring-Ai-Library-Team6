@@ -7,12 +7,10 @@ import com.nhnacademy.springailibrarystudy.rag.application.dto.GenerateRagAnswer
 import com.nhnacademy.springailibrarystudy.rag.application.dto.RagBookCandidate;
 import com.nhnacademy.springailibrarystudy.rag.application.dto.RagBookRecommendation;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import com.nhnacademy.springailibrarystudy.rag.infrastructure.HybridBookCandidateSearcher;
+import com.nhnacademy.springailibrarystudy.search.presentation.dto.BookSearchItemResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -114,6 +112,66 @@ public class SearchBooksRagUseCase {
         }
 
         return finalResult;
+    }
+
+    public List<RagBookCandidate> searchCandidates(GenerateRagAnswerCommand command) {
+        Objects.requireNonNull(command, "command must not be null");
+        if (!StringUtils.hasText(command.question())) {
+            return List.of();
+        }
+
+        List<RagBookCandidate> candidates = hybridBookCandidateSearcher.search(
+                command.question(), command.candidateTopK(), command.userKey()
+        );
+        if (candidates.isEmpty()) {
+            return List.of();
+        }
+
+        return candidates.stream()
+                .filter(book -> book.rrfScore() != null)
+                .limit(FALLBACK_CANDIDATES)
+                .toList();
+    }
+
+    public GenerateRagAnswerResult generateAnswer(GenerateRagAnswerCommand command, List<RagBookCandidate> filteredCandidates) {
+        boolean personalizedRequest = StringUtils.hasText(command.userKey());
+
+        if (!personalizedRequest) {
+            Optional<String> cachedJson = semanticCacheService.get(command.question());
+            if (cachedJson.isPresent()) {
+                GenerateRagAnswerResult cached = deserialize(cachedJson.get());
+                if (cached != null) return cached;
+            }
+        }
+
+        if (filteredCandidates.isEmpty()) {
+            return fallback("질문과 관련된 도서를 찾지 못했습니다.", filteredCandidates, command.recommendationTopK());
+        }
+
+        String context = ragContextBuilder.build(filteredCandidates);
+        Prompt prompt = ragPromptBuilder.build(command.question(), context, command.recommendationTopK());
+        List<RagBookRecommendation> books = recommend(prompt, filteredCandidates, command.recommendationTopK());
+
+        if (books.isEmpty()) {
+            List<RagBookRecommendation> fallbackBooks = fallbackBuilder.build(filteredCandidates, command.recommendationTopK());
+            return result("LLM 추천 생성에 실패하여 검색 결과 상위 %d권을 표시합니다.".formatted(fallbackBooks.size()), fallbackBooks, true);
+        }
+
+        GenerateRagAnswerResult finalResult = result(
+                "후보 도서 %d권 중 질문에 적합한 도서 %d권을 추천했습니다.".formatted(filteredCandidates.size(), books.size()),
+                books, false
+        );
+
+        if (!personalizedRequest) {
+            cacheIfSuccessful(command.question(), finalResult);
+        }
+        return finalResult;
+    }
+
+    // 기존 answer()는 두 메서드 조합으로 유지 (다른 곳에서 쓰는 곳 있으면 호환용)
+    public GenerateRagAnswerResult answerV2(GenerateRagAnswerCommand command) {
+        List<RagBookCandidate> candidates = searchCandidates(command);
+        return generateAnswer(command, candidates);
     }
 
     private List<RagBookRecommendation> recommend(

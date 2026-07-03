@@ -9,11 +9,23 @@
 
     <style>
         body {
-            background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+            background-color: #eef1f6;
+        }
+
+        .page-wrapper,
+        .page-body {
+            background: transparent;
         }
         .navbar-brand {
             font-weight: 700;
             letter-spacing: -0.5px;
+        }
+
+        footer.footer {
+            background-color: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            padding: 1.2rem 0;
+            margin-top: 2rem;
         }
     </style>
 </head>
@@ -29,6 +41,8 @@
             </div>
         </div>
     </div>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/js/tabler.min.js"></script>

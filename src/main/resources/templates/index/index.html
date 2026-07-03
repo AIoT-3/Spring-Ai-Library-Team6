@@ -44,13 +44,94 @@
         .book-card .card-text {
             font-size: 0.85rem;
         }
+
+        .llm-wrapper {
+            background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%);
+            border: 1px solid #e0e7ff;
+            border-radius: 1.2rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.08);
+        }
+        .llm-wrapper .llm-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .llm-wrapper .llm-badge {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.3rem 0.7rem;
+            border-radius: 2rem;
+            letter-spacing: 0.3px;
+        }
+        .llm-wrapper .llm-answer {
+            color: #4338ca;
+            font-size: 0.95rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .llm-item {
+            display: flex;
+            gap: 0.9rem;
+            background: #fff;
+            border-radius: 0.7rem;
+            padding: 0.7rem;
+            margin-bottom: 0.6rem;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+        .llm-item:hover {
+            transform: translateX(3px);
+            box-shadow: 0 3px 10px rgba(99, 102, 241, 0.15);
+        }
+        .llm-item img {
+            width: 56px;
+            height: 76px;
+            object-fit: cover;
+            border-radius: 0.4rem;
+            flex-shrink: 0;
+        }
+        .llm-item .llm-item-noimg {
+            width: 56px;
+            height: 76px;
+            flex-shrink: 0;
+            border-radius: 0.4rem;
+            background-color: #f1f3f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 0.6rem;
+            color: #94a3b8;
+            line-height: 1.2;
+        }
+        .llm-item .llm-item-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.15rem;
+            color: #1e293b;
+        }
+        .llm-item .llm-item-meta {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: 0.3rem;
+        }
+        .llm-item .llm-item-reason {
+            font-size: 0.8rem;
+            color: #6366f1;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
 
 <div layout:fragment="content">
-
-    <!-- 검색 폼 (부드러운 카드 형태) -->
     <div class="card search-card my-4">
         <div class="card-body p-4">
             <form th:action="@{/}" method="get" class="row g-2 align-items-center">
@@ -83,6 +164,17 @@
         <span class="text-secondary">(검색 소요 시간: <span th:text="${searchTime}">0.0</span>s)</span>
     </div>
 
+    <!-- LLM 추천 결과 (RAG 검색일 때만) -->
+    <div th:if="${ragSearch}" class="llm-wrapper" id="llm-result-area">
+        <div class="llm-header">
+            <span class="llm-badge">✨ AI 추천</span>
+        </div>
+        <div class="d-flex align-items-center text-muted" id="llm-loading">
+            <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+            AI가 도서를 분석하고 추천하는 중입니다...
+        </div>
+    </div>
+
     <!-- 도서 목록: 3열 카드 그리드 -->
     <div th:if="${books == null or books.empty}" class="text-center text-muted py-5">
         검색 결과가 없습니다.
@@ -93,18 +185,26 @@
             <a th:href="@{/books/{id}(id=${book.id})}"
                class="text-decoration-none text-reset d-block h-100">
                 <div class="card book-card">
-                    <img th:src="${book.imageUrl}" th:alt="${book.title}" class="card-img-top">
+                    <img th:if="${book.imageUrl != null and !book.imageUrl.isEmpty()}"
+                         th:src="${book.imageUrl}"
+                         th:alt="${book.title}"
+                         class="card-img-top">
+                    <div th:unless="${book.imageUrl != null and !book.imageUrl.isEmpty()}"
+                         class="card-img-top d-flex align-items-center justify-content-center text-muted"
+                         style="background-color: #f1f3f5;">
+                        이미지 없음
+                    </div>
                     <div class="card-body">
                         <h3 class="card-title" th:text="${book.title}">제목</h3>
                         <p class="card-text text-muted mb-1" th:text="${book.authorName}">저자명</p>
                         <p class="card-text text-muted mb-1" th:text="${book.publisherName + ' · ' + book.publishedDate}">출판사 · 날짜</p>
-                        <p class="card-text small text-secondary mb-0">
-                            <th:block th:if="${book.similarity != null}">
-                                similarity: <span th:text="${book.similarity}">0</span>
-                            </th:block>
-                            <th:block th:if="${book.rrfScore != null}">
-                                rrfScore: <span th:text="${book.rrfScore}">0</span>
-                            </th:block>
+                        <p class="card-text mb-0">
+                            <span th:if="${book.similarity != null}" class="badge bg-light text-dark border me-1">
+                                similarity: <span th:text="${#numbers.formatDecimal(book.similarity, 1, 3)}">0</span>
+                            </span>
+                                                    <span th:if="${book.rrfScore != null}" class="badge bg-light text-dark border">
+                                rrfScore: <span th:text="${#numbers.formatDecimal(book.rrfScore, 1, 4)}">0</span>
+                            </span>
                         </p>
                     </div>
                 </div>
@@ -117,9 +217,56 @@
 
 </div>
 
-<script layout:fragment="scripts">
+<script th:inline="javascript" layout:fragment="scripts">
     document.querySelector('form').addEventListener('submit', function() {
         document.getElementById('loading').style.display = 'block';
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const ragArea = document.getElementById('llm-result-area');
+        if (!ragArea) return;
+
+        const question = /*[[${question}]]*/ '';
+
+        fetch('/rag/async?question=' + encodeURIComponent(question))
+            .then(res => {
+                if (!res.ok) throw new Error('요청 실패: ' + res.status);
+                return res.json();
+            })
+            .then(data => {
+                const loading = document.getElementById('llm-loading');
+                if (loading) loading.remove();
+
+                if (!data.books || data.books.length === 0) {
+                    ragArea.insertAdjacentHTML('beforeend', '<div class="text-muted">추천 결과가 없습니다.</div>');
+                    return;
+                }
+
+                const answerHtml = `<p class="llm-answer">${data.answer}</p>`;
+                const itemsHtml = data.books.map(book => {
+                    const imageHtml = (book.imageUrl && book.imageUrl.trim() !== '')
+                        ? `<img src="${book.imageUrl}" alt="${book.title}">`
+                        : `<div class="llm-item-noimg">이미지<br>없음</div>`;
+
+                    return `
+                    <a href="/books/${book.id}" class="llm-item">
+                        ${imageHtml}
+                        <div>
+                            <div class="llm-item-title">${book.title}</div>
+                            <div class="llm-item-meta">${book.authorName ?? ''} · ${book.publisherName ?? ''}</div>
+                            <div class="llm-item-reason">${book.recommendationReason ?? ''}</div>
+                        </div>
+                    </a>
+                    `;
+                }).join('');
+
+                ragArea.insertAdjacentHTML('beforeend', answerHtml + itemsHtml);
+            })
+            .catch(err => {
+                console.error(err);
+                const loading = document.getElementById('llm-loading');
+                if (loading) loading.innerText = '추천 생성에 실패했습니다.';
+            });
     });
 </script>
 

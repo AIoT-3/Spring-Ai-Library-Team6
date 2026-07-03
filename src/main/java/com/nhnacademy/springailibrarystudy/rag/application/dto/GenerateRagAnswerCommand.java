@@ -12,7 +12,7 @@ public record GenerateRagAnswerCommand(
 ) {
 
     private static final int DEFAULT_CANDIDATE_TOP_K = 100;
-    private static final int DEFAULT_RECOMMENDATION_TOP_K = 10;
+    private static final int DEFAULT_RECOMMENDATION_TOP_K = 3;
 
     /**
      * GenerateRagAnswerCommand.of(question)을 호출 시,

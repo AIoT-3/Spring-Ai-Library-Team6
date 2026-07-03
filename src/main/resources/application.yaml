@@ -32,7 +32,8 @@ spring:
       chat:
         model: qwen3.5:9b
         think: false
-        format: json
+        num-ctx: 8192
+        num-predict: 4096
         num-ctx: 8192
         num-predict: 2048
       embedding:
@@ -69,6 +70,12 @@ book:
       enabled: false
       batch-size: 128
       row-limit: 0
+
+telegram:
+  bot:
+    enabled: true # 일단 기본 비활성화
+    token: ${TELEGRAM_BOT_TOKEN}
+    username: ${TELEGRAM_BOT_USERNAME}
 
 telegram:
   bot:

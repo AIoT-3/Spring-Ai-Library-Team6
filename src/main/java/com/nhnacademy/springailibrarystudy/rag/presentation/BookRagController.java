@@ -1,4 +1,4 @@
-package com.nhnacademy.springailibrarystudy.front.web;
+package com.nhnacademy.springailibrarystudy.rag.presentation;
 
 import com.nhnacademy.springailibrarystudy.rag.application.SearchBooksRagUseCase;
 import com.nhnacademy.springailibrarystudy.rag.application.dto.GenerateRagAnswerCommand;

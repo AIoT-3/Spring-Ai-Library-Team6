@@ -20,7 +20,7 @@ public class RagContextBuilder {
             RagBookCandidate candidate = candidates.get(i);
 
             // DB에서 검색된 field만 컨텍스트에 넣음
-            context.append("[도서 ").append(i + 1).append("]\n");
+            context.append("[후보 도서]\n");
             appendLine(context, "id", candidate.id());
             appendLine(context, "title", candidate.title());
             appendLine(context, "author", candidate.authorName());

@@ -2,37 +2,25 @@ package com.nhnacademy.springailibrarystudy.rag.application;
 
 import com.nhnacademy.springailibrarystudy.rag.application.dto.RagBookCandidate;
 import com.nhnacademy.springailibrarystudy.rag.application.dto.RagBookRecommendation;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 @Component
 public class RagRecommendationFallbackBuilder {
-
-    private static final int MAX_REASON_SOURCE_LENGTH = 512;
-
+    // 코드변경점. llm 추천 생성에 실패하였을 때, 사용자에게 이중으로 안내되어 불필요한 설명이라는 느낌을 받을 수 있던 부분을
+    // 상위 ? 위 도서라는 표기로 불필요하게 반복되는 안내를 바꾸었음
     public List<RagBookRecommendation> build(List<RagBookCandidate> candidates, int recommendationTopK) {
-        return candidates.stream()
-                .limit(recommendationTopK)
-                .map(candidate -> RagBookRecommendation.of(candidate, reason(candidate)))
-                .toList();
+        List<RagBookCandidate> selected = candidates.stream().limit(recommendationTopK).toList();
+
+        List<RagBookRecommendation> recommendations = new ArrayList<>();
+        for (int i = 0; i < selected.size(); i++) {
+            recommendations.add(RagBookRecommendation.of(selected.get(i), reason(i + 1)));
+        }
+        return recommendations;
     }
 
-    private String reason(RagBookCandidate candidate) {
-        if (StringUtils.hasText(candidate.description())) {
-            return """
-                    LLM 추천 생성에 실패하여 검색 결과 순서대로 표시합니다.%n 책 소개: %s
-                    """.formatted(trim(candidate.description())).trim();
-        }
-
-        return "LLM 추천 생성에 실패하여 검색 결과 순서대로 표시합니다.";
-    }
-
-    private String trim(String value) {
-        String normalized = value.replaceAll("\\s+", " ").trim();
-        if (normalized.length() <= MAX_REASON_SOURCE_LENGTH) {
-            return normalized;
-        }
-        return normalized.substring(0, MAX_REASON_SOURCE_LENGTH).trim() + "...";
+    private String reason(int rank) {
+        return "검색 결과 상위 %d위 도서입니다.".formatted(rank);
     }
 }

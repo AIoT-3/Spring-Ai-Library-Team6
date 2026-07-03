@@ -12,24 +12,11 @@ public record GenerateRagAnswerCommand(
 ) {
 
     private static final int DEFAULT_CANDIDATE_TOP_K = 100;
-    private static final int MAX_CANDIDATE_TOP_K = 10;
     private static final int DEFAULT_RECOMMENDATION_TOP_K = 10;
-    private static final int MAX_RECOMMENDATION_TOP_K = 5;
-
-//    public GenerateRagAnswerCommand {
-//        question = normalize(question);
-//        userKey = normalize(userKey);
-//        candidateTopK = candidateTopK <= 0
-//                ? DEFAULT_CANDIDATE_TOP_K
-//                : Math.min(candidateTopK, MAX_CANDIDATE_TOP_K);
-//        recommendationTopK = recommendationTopK <= 0
-//                ? DEFAULT_RECOMMENDATION_TOP_K
-//                : Math.min(recommendationTopK, MAX_RECOMMENDATION_TOP_K);
-//    }
 
     /**
      * GenerateRagAnswerCommand.of(question)을 호출 시,
-     * 두 필드(candidateTopK, recommendationTopK)가 디폴드 값으로 지정되도록 생성자 변경
+     * 두 필드(candidateTopK, recommendationTopK)가 디폴트 값으로 지정되도록 생성자 변경
      * @param question 사용자 질문 (자연어)
      * @param userKey ()
      * @param candidateTopK DB search(hybrid-search)로 가져올 후보 수
@@ -45,11 +32,6 @@ public record GenerateRagAnswerCommand(
     public static GenerateRagAnswerCommand of(String question) {
         return new GenerateRagAnswerCommand(
                 question, null, DEFAULT_CANDIDATE_TOP_K, DEFAULT_RECOMMENDATION_TOP_K);
-    }
-
-    public static GenerateRagAnswerCommand of(String question, String userKey) {
-        return new GenerateRagAnswerCommand(
-                question, userKey, DEFAULT_CANDIDATE_TOP_K, DEFAULT_RECOMMENDATION_TOP_K);
     }
 
     private static String normalize(String value) {

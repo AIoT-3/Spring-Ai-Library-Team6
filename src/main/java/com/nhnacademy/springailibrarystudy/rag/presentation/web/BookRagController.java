@@ -1,4 +1,4 @@
-package com.nhnacademy.springailibrarystudy.rag.presentation;
+package com.nhnacademy.springailibrarystudy.rag.presentation.web;
 
 import com.nhnacademy.springailibrarystudy.rag.application.SearchBooksRagUseCase;
 import com.nhnacademy.springailibrarystudy.rag.application.dto.GenerateRagAnswerCommand;
@@ -22,7 +22,7 @@ public class BookRagController {
     ) {
         try {
             GenerateRagAnswerResult result = searchBooksRagUseCase.answer(
-                    GenerateRagAnswerCommand.of(question,null)
+                    GenerateRagAnswerCommand.of(question)
             );
 
             model.addAttribute("question", question);

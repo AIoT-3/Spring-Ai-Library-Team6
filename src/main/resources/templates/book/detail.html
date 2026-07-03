@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+<head>
+  <title th:text="${book.title()}">도서 상세</title>
+  <style>
+    .detail-card {
+      border: none;
+      border-radius: 1.1rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .book-cover {
+      width: 100%;
+      max-width: 220px;
+      border-radius: 0.7rem;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    }
+    .book-meta-list {
+      font-size: 0.9rem;
+      color: #64748b;
+    }
+    .book-meta-list li { margin-bottom: 0.35rem; }
+    .book-price {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .review-summary-box {
+      background: linear-gradient(135deg, #fff7ed 0%, #fffbeb 100%);
+      border: 1px solid #fde68a;
+      border-radius: 0.9rem;
+      padding: 1.2rem 1.4rem;
+    }
+    .review-rating-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: #fbbf24;
+      color: #fff;
+      font-weight: 700;
+      padding: 0.35rem 0.8rem;
+      border-radius: 2rem;
+      font-size: 0.9rem;
+    }
+    .review-summary-text {
+      margin-top: 0.8rem;
+      line-height: 1.7;
+      color: #78350f;
+      font-size: 0.9rem;
+    }
+    .review-summary-text b { color: #92400e; }
+    .no-review-box {
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 0.9rem;
+      padding: 1.5rem;
+      text-align: center;
+      color: #94a3b8;
+    }
+
+    .review-form-card {
+      border: none;
+      border-radius: 1rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    }
+
+    .review-item {
+      border-bottom: 1px solid #eef2f7;
+      padding: 1rem 0;
+    }
+    .review-item:last-child { border-bottom: none; }
+    .review-item .stars { color: #fbbf24; letter-spacing: 1px; }
+    .review-item .meta { font-size: 0.78rem; color: #94a3b8; }
+
+    .flash-message {
+      border-radius: 0.7rem;
+      padding: 0.8rem 1.1rem;
+      margin-bottom: 1.2rem;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+  <!-- 플래시 메시지 -->
+  <div th:if="${reviewMessage}" class="flash-message alert alert-success" th:text="${reviewMessage}"></div>
+  <div th:if="${reviewError}" class="flash-message alert alert-danger" th:text="${reviewError}"></div>
+
+  <a href="/" class="btn btn-link ps-0 mb-3 text-decoration-none">← 검색으로 돌아가기</a>
+
+  <!-- ── 도서 정보 ── -->
+  <div class="card detail-card">
+    <div class="card-body p-4">
+      <div class="row g-4">
+        <div class="col-md-3 text-center text-md-start">
+          <img th:if="${book.imageUrl() != null}" th:src="${book.imageUrl()}" alt="" class="book-cover">
+          <div th:unless="${book.imageUrl() != null}"
+               class="book-cover d-flex align-items-center justify-content-center bg-light text-muted"
+               style="height: 300px;">이미지 없음</div>
+        </div>
+        <div class="col-md-9">
+          <h1 class="h3 mb-2" th:text="${book.title()}">도서 제목</h1>
+          <p class="text-muted mb-3">
+            <span th:if="${book.authorName() != null}" th:text="${book.authorName()}">저자</span>
+            <span th:if="${book.publisherName() != null}">
+                            · <span th:text="${book.publisherName()}">출판사</span>
+                        </span>
+          </p>
+
+          <ul class="list-unstyled book-meta-list mb-3">
+            <li th:if="${book.publishedDate() != null}">
+              📅 출판일: <span th:text="${book.publishedDate()}">날짜</span>
+            </li>
+            <li th:if="${book.isbn13() != null}">
+              🔖 ISBN: <span th:text="${book.isbn13()}">ISBN</span>
+            </li>
+          </ul>
+
+          <p th:if="${book.price() != null}" class="book-price mb-0">
+                        <span th:if="${book.price().stripTrailingZeros().scale() <= 0}"
+                              th:text="${#numbers.formatInteger(book.price(), 1, 'COMMA')}">0</span>
+            <span th:unless="${book.price().stripTrailingZeros().scale() <= 0}"
+                  th:text="${#numbers.formatDecimal(book.price(), 1, 'COMMA', -1, 'POINT')}">0.00</span>
+            원
+          </p>
+        </div>
+      </div>
+
+      <div th:if="${book.description() != null}" class="mt-4 pt-4 border-top">
+        <h2 class="section-title">📖 책 소개</h2>
+        <p class="text-secondary" style="line-height: 1.7;" th:text="${book.description()}">도서 설명</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 리뷰 통계 + AI 요약 ── -->
+  <div class="mb-4">
+    <h2 class="section-title">💬 리뷰</h2>
+
+    <div class="review-summary-box"
+         th:if="${book.averageRating() != null and book.reviewCount() != null and book.reviewCount() > 0}">
+            <span class="review-rating-badge">
+                ★ <span th:text="${#numbers.formatDecimal(book.averageRating(), 1, 1)}">0.0</span>/5.0
+            </span>
+      <span class="text-muted ms-2">(<span th:text="${book.reviewCount()}">0</span>개 리뷰)</span>
+
+      <p class="review-summary-text"
+         th:if="${book.reviewSummary() != null and !#strings.isEmpty(book.reviewSummary())}"
+         th:utext="${#strings.replace(#strings.replace(#strings.replace(#strings.replace(book.reviewSummary(), '**', ''), '장점:', '<b>장점</b>:'), '단점:', '<br/><br/><b>단점</b>:'), '총평:', '<br/><br/><b>총평</b>:')}">
+        리뷰 요약
+      </p>
+    </div>
+
+    <div class="no-review-box"
+         th:unless="${book.averageRating() != null and book.reviewCount() != null and book.reviewCount() > 0}">
+      아직 리뷰가 없는 도서입니다. 첫 리뷰를 남겨보세요!
+    </div>
+  </div>
+
+  <!-- ── 리뷰 등록 폼 ── -->
+  <div class="card review-form-card mb-4">
+    <div class="card-body p-4">
+      <h3 class="section-title mb-3">✏️ 리뷰 작성</h3>
+      <form th:action="@{/books/{id}/reviews(id=${book.id()})}" method="post" class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label small text-muted">별점</label>
+          <select name="rating" required class="form-select">
+            <option value="">선택</option>
+            <option value="5">★★★★★ (5)</option>
+            <option value="4">★★★★ (4)</option>
+            <option value="3">★★★ (3)</option>
+            <option value="2">★★ (2)</option>
+            <option value="1">★ (1)</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small text-muted">작성자</label>
+          <input type="text" name="author" placeholder="닉네임" required class="form-control">
+        </div>
+        <div class="col-12">
+          <label class="form-label small text-muted">리뷰 내용</label>
+          <textarea name="content" rows="4" placeholder="이 책에 대한 생각을 남겨주세요" required class="form-control"></textarea>
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary px-4">리뷰 등록</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── 리뷰 목록 ── -->
+  <div class="card detail-card">
+    <div class="card-body p-4">
+      <h3 class="section-title">
+        📚 전체 리뷰 (<span th:text="${#lists.size(book.reviews())}">0</span>개)
+      </h3>
+      <p th:if="${#lists.isEmpty(book.reviews())}" class="text-muted">아직 작성된 리뷰가 없습니다.</p>
+
+      <div class="review-item" th:each="review : ${book.reviews()}">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <strong th:text="${review.author()}">작성자</strong>
+          <span class="stars" th:text="${'★'.repeat(review.rating())}">★★★★★</span>
+        </div>
+        <p class="mb-1" th:text="${review.content()}">리뷰 내용</p>
+        <p class="meta mb-0" th:text="${review.createdAt()}">작성일시</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

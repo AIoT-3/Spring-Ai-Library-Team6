@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body>
+
+<nav th:fragment="pagination(page, request)"
+     th:if="${page != null and page.totalPages > 1}"
+     aria-label="페이지 네비게이션">
+    <ul class="pagination justify-content-center"
+        th:with="current=${page.number},
+                 total=${page.totalPages},
+                 rawStart=${current - 2},
+                 rawEnd=${current + 2},
+                 start=${rawStart < 0 ? 0 : (rawEnd > total - 1 ? T(java.lang.Math).max(0, total - 5) : rawStart)},
+                 end=${start + 4 > total - 1 ? total - 1 : start + 4}">
+
+        <!-- 처음 -->
+        <li class="page-item" th:classappend="${page.first} ? 'disabled'">
+            <a class="page-link"
+               th:href="@{/(page=0, query=${request.query}, searchType=${request.searchType})}">&laquo;&laquo;</a>
+        </li>
+
+        <!-- 이전 -->
+        <li class="page-item" th:classappend="${page.first} ? 'disabled'">
+            <a class="page-link"
+               th:href="@{/(page=${current - 1}, query=${request.query}, searchType=${request.searchType})}">&laquo;</a>
+        </li>
+
+        <!-- 앞쪽 생략 -->
+        <li class="page-item" th:if="${start > 0}">
+            <a class="page-link" th:href="@{/(page=0, query=${request.query}, searchType=${request.searchType})}">1</a>
+        </li>
+        <li class="page-item disabled" th:if="${start > 1}">
+            <span class="page-link">…</span>
+        </li>
+
+        <!-- 현재 페이지 주변 -->
+        <li class="page-item" th:each="pageNum : ${#numbers.sequence(start, end)}"
+            th:classappend="${pageNum == current} ? 'active'">
+            <a class="page-link"
+               th:href="@{/(page=${pageNum}, query=${request.query}, searchType=${request.searchType})}"
+               th:text="${pageNum + 1}">1</a>
+        </li>
+
+        <!-- 뒤쪽 생략 -->
+        <li class="page-item disabled" th:if="${end < total - 2}">
+            <span class="page-link">…</span>
+        </li>
+        <li class="page-item" th:if="${end < total - 1}">
+            <a class="page-link"
+               th:href="@{/(page=${total - 1}, query=${request.query}, searchType=${request.searchType})}"
+               th:text="${total}">last</a>
+        </li>
+
+        <!-- 다음 -->
+        <li class="page-item" th:classappend="${page.last} ? 'disabled'">
+            <a class="page-link"
+               th:href="@{/(page=${current + 1}, query=${request.query}, searchType=${request.searchType})}">&raquo;</a>
+        </li>
+
+        <!-- 끝 -->
+        <li class="page-item" th:classappend="${page.last} ? 'disabled'">
+            <a class="page-link"
+               th:href="@{/(page=${total - 1}, query=${request.query}, searchType=${request.searchType})}">&raquo;&raquo;</a>
+        </li>
+    </ul>
+</nav>
+
+</body>
+</html>

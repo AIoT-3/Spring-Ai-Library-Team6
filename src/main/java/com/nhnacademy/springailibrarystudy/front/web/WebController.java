@@ -2,7 +2,7 @@ package com.nhnacademy.springailibrarystudy.front.web;
 
 import com.nhnacademy.springailibrarystudy.rag.application.SearchBooksRagUseCase;
 import com.nhnacademy.springailibrarystudy.rag.application.dto.GenerateRagAnswerCommand;
-import com.nhnacademy.springailibrarystudy.rag.application.dto.GenerateRagAnswerResult;
+import com.nhnacademy.springailibrarystudy.rag.application.dto.RagBookCandidate;
 import com.nhnacademy.springailibrarystudy.search.application.SearchBooksUseCase;
 import com.nhnacademy.springailibrarystudy.search.domain.SearchType;
 import com.nhnacademy.springailibrarystudy.search.presentation.dto.BookSearchItemResponse;
@@ -28,6 +28,7 @@ public class WebController {
 
     private final SearchBooksUseCase searchBooksUseCase;
     private final SearchBooksRagUseCase searchBooksRagUseCase;
+
     @GetMapping
     public String index(@ModelAttribute BookSearchRequest request,
                         BindingResult bindingResult,
@@ -46,39 +47,36 @@ public class WebController {
         String question = request.query();
 
         if (request.searchType() == SearchType.RAG) {
-            try {
-                GenerateRagAnswerResult result = searchBooksRagUseCase.answer(
-                        GenerateRagAnswerCommand.of(question)
-                );
+            // 즉시 반환: 캐시 확인 없이 하이브리드 후보 검색 + 필터링까지만 수행
+            GenerateRagAnswerCommand command = GenerateRagAnswerCommand.of(question);
+            List<RagBookCandidate> candidates = searchBooksRagUseCase.searchCandidates(command);
 
-                model.addAttribute("question", question);
-                model.addAttribute("answer", result.answer());
-                model.addAttribute("books", result.books());
-                model.addAttribute("fallback", result.fallback());
+            List<BookSearchItemResponse> candidateItems = candidates.stream()
+                    .map(BookSearchItemResponse::fromRagBookCandidate)
+                    .toList();
 
-                return "rag/result";
-            } catch (Exception e) {
-                model.addAttribute("question", question);
-                model.addAttribute("error", "추천 중 오류가 발생했습니다.");
-                model.addAttribute("errorMessage", e.getMessage());
-                return "rag/error";
-            }
+            model.addAttribute("request", request);
+            model.addAttribute("books", candidateItems);
+            model.addAttribute("page", null);
+            model.addAttribute("question", question);
+            model.addAttribute("ragSearch", true); // 템플릿에서 LLM 영역 렌더링 여부 판단
+
+            return "index/index";
         }
 
         // 하이브리드 검색 처리 (일반 검색)
         long startTime = System.currentTimeMillis();
 
-        // 검색 수행
         Page<BookSearchItemResponse> results = searchBooksUseCase.search(request, pageable);
 
         long endTime = System.currentTimeMillis();
         double searchTime = (endTime - startTime) / 1000.0;
 
-        // 모델 데이터 주입
         model.addAttribute("request", request);
         model.addAttribute("books", results.getContent());
         model.addAttribute("page", results);
         model.addAttribute("searchTime", searchTime);
+        model.addAttribute("ragSearch", false);
 
         return "index/index";
     }

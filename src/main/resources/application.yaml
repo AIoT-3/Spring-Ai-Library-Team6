@@ -34,8 +34,6 @@ spring:
         think: false
         num-ctx: 8192
         num-predict: 4096
-        num-ctx: 8192
-        num-predict: 2048
       embedding:
         model: bge-m3
     openai:
@@ -73,16 +71,6 @@ book:
 
 telegram:
   bot:
-    enabled: true # 일단 기본 비활성화
-    token: ${TELEGRAM_BOT_TOKEN}
-    username: ${TELEGRAM_BOT_USERNAME}
-
-telegram:
-  bot:
     enabled: false # 일단 기본 비활성화
     token: ${TELEGRAM_BOT_TOKEN}
     username: ${TELEGRAM_BOT_USERNAME}
-
-logging:
-  level:
-    com.nhnacademy.springailibrarystudy: debug

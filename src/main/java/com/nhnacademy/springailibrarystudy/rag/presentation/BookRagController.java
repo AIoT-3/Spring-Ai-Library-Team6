@@ -9,7 +9,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-// FIXME: front.web보단 rag.presentation.web 아니면 rag.presentation로 위치 이동 고려
 @Controller
 @RequiredArgsConstructor
 public class BookRagController {
@@ -23,7 +22,7 @@ public class BookRagController {
     ) {
         try {
             GenerateRagAnswerResult result = searchBooksRagUseCase.answer(
-                    GenerateRagAnswerCommand.of(question)
+                    GenerateRagAnswerCommand.of(question,null)
             );
 
             model.addAttribute("question", question);

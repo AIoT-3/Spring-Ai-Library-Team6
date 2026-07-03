@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>AI 도서관</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/css/tabler.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page">
+    <header th:replace="~{fragments/header :: header}"></header>
+
+    <div class="page-wrapper">
+        <div class="page-body">
+            <div class="container-xl">
+                <div layout:fragment="content"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/js/tabler.min.js"></script>
+
+<th:block layout:fragment="scripts"></th:block>
+
+</body>
+</html>

@@ -22,7 +22,7 @@ public class BookSearchTool {
 
     private final SearchBooksHybridUseCase searchBooksHybridUseCase;
 
-    @Tool(description = "도서관 시스템에서 제목이나 저자명으로 도서를 검색합니다.")
+    @Tool(description = "도서관 시스템에서 제목이나 저자명으로 도서를 검색합니다. 사용자가 도서를 추천해달라고 하거나, 찾아달라는 등, 검색 의도를 가질 때 이 도구를 사용합니다.")
     public List<BookSearchToolResult> searchBooks(
             @ToolParam(description = "검색어 (도서 제목, 저자명 등)") String query
     ) {

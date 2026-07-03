@@ -1,5 +1,7 @@
 package com.nhnacademy.springailibrarystudy.rag.application;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nhnacademy.springailibrarystudy.cache.application.SemanticCacheService;
 import com.nhnacademy.springailibrarystudy.rag.application.dto.GenerateRagAnswerCommand;
 import com.nhnacademy.springailibrarystudy.rag.application.dto.GenerateRagAnswerResult;
 import com.nhnacademy.springailibrarystudy.rag.application.dto.RagBookCandidate;
@@ -7,6 +9,7 @@ import com.nhnacademy.springailibrarystudy.rag.application.dto.RagBookRecommenda
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.nhnacademy.springailibrarystudy.rag.infrastructure.HybridBookCandidateSearcher;
@@ -26,6 +29,9 @@ public class SearchBooksRagUseCase {
     private final RagPromptBuilder ragPromptBuilder;
     private final RagRecommendationGenerator recommendationGenerator;
     private final RagRecommendationFallbackBuilder fallbackBuilder;
+    // 캐싱용
+    private final SemanticCacheService semanticCacheService;
+    private final ObjectMapper objectMapper;
 
     // RRF 점수 기반 필터링에 사용할 수치
     private static final Double SCORE_THRESHOLD = 0.015;
@@ -37,6 +43,20 @@ public class SearchBooksRagUseCase {
 
         if (!StringUtils.hasText(command.question())) {
             return fallback("질문을 입력해주세요.", List.of(), command.recommendationTopK());
+        }
+
+        boolean personalizedRequest = StringUtils.hasText(command.userKey());
+
+        // 캐시 조회
+        if (!personalizedRequest) {
+            Optional<String> cachedJson = semanticCacheService.get(command.question());
+            if (cachedJson.isPresent()) {
+                GenerateRagAnswerResult cached = deserialize(cachedJson.get());
+                if (cached != null) {
+                    log.info("[RAG] 캐시 적중으로 즉시 반환: question='{}'", command.question());
+                    return cached;
+                }
+            }
         }
 
         log.info("RAG 추천 시작: question='{}', candidateTopK={}, recommendationTopK={}",
@@ -63,8 +83,7 @@ public class SearchBooksRagUseCase {
         // RRF 점수 기반 필터링 대신, RRF 점수 기준 내림차순으로 정렬된 도서들 중 상위 10권만 필터링
 
         for (RagBookCandidate ragBookCandidate : filteredCandidates) {
-            // FIXME: 로깅 레벨을 info에서 debug로 변경하는 것 고려
-            log.info("id: {}, title: {}, rrfScore: {}", ragBookCandidate.id(), ragBookCandidate.title(), ragBookCandidate.rrfScore());
+            log.debug("id: {}, title: {}, rrfScore: {}", ragBookCandidate.id(), ragBookCandidate.title(), ragBookCandidate.rrfScore());
         }
 
         // 책 추천 생성
@@ -82,12 +101,19 @@ public class SearchBooksRagUseCase {
             );
         }
 
-        return result(
+        GenerateRagAnswerResult finalResult = result(
                 "후보 도서 %d권 중 질문에 적합한 도서 %d권을 추천했습니다."
                         .formatted(filteredCandidates.size(), books.size()),
                 books,
                 false
         );
+
+        // 성공(fallback=false) 결과만 캐시에 저장
+        if (!personalizedRequest) {
+            cacheIfSuccessful(command.question(), finalResult);
+        }
+
+        return finalResult;
     }
 
     private List<RagBookRecommendation> recommend(
@@ -117,5 +143,34 @@ public class SearchBooksRagUseCase {
             boolean fallback
     ) {
         return new GenerateRagAnswerResult(UUID.randomUUID().toString(), answer, books, false, fallback);
+    }
+
+    // 캐시 저장 헬퍼들
+    private void cacheIfSuccessful(String question, GenerateRagAnswerResult result) {
+        if (result.fallback()) {
+            return;
+        }
+        String json = serialize(result);
+        if (json != null) {
+            semanticCacheService.put(question, json);
+        }
+    }
+
+    private String serialize(GenerateRagAnswerResult result) {
+        try {
+            return objectMapper.writeValueAsString(result);
+        } catch (Exception e) {
+            log.warn("[RAG] 결과 직렬화 실패(캐시 저장 생략): {}", e.toString());
+            return null;
+        }
+    }
+
+    private GenerateRagAnswerResult deserialize(String json) {
+        try {
+            return objectMapper.readValue(json, GenerateRagAnswerResult.class);
+        } catch (Exception e) {
+            log.warn("[RAG] 캐시 역직렬화 실패(정상 경로로 진행): {}", e.toString());
+            return null;
+        }
     }
 }

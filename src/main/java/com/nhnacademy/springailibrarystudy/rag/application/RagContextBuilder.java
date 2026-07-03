@@ -5,10 +5,12 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+
 @Component
 public class RagContextBuilder {
 
     private static final int MAX_DESCRIPTION_LENGTH = 512;
+    private static final int MAX_REVIEW_SUMMARY_LENGTH = 200;
 
     public String build(List<RagBookCandidate> candidates) {
         if (candidates == null || candidates.isEmpty()) {
@@ -28,6 +30,10 @@ public class RagContextBuilder {
             appendLine(context, "description", trimDescription(candidate.description()));
             appendLine(context, "similarity", candidate.similarity());
             appendLine(context, "rrfScore", candidate.rrfScore());
+            // 리뷰 정보
+            appendLine(context, "averageRating", candidate.averageRating());
+            appendLine(context, "reviewCount", candidate.reviewCount());
+            appendLine(context, "reviewSummary", trim(candidate.reviewSummary(), MAX_REVIEW_SUMMARY_LENGTH));
             context.append('\n');
         }
 
@@ -51,5 +57,12 @@ public class RagContextBuilder {
         }
 
         return description.substring(0, MAX_DESCRIPTION_LENGTH).trim();
+    }
+
+    private String trim(String text, int maxLength) {
+        if (!StringUtils.hasText(text) || text.length() <= maxLength) {
+            return text;
+        }
+        return text.substring(0, maxLength).trim();
     }
 }

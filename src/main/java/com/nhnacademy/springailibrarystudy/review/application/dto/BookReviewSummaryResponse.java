@@ -1,6 +1,6 @@
 package com.nhnacademy.springailibrarystudy.review.application.dto;
 
-public record BookReviewSummary(
+public record BookReviewSummaryResponse(
         Long bookId,
         String summary,
         int reviewCount,

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${book.title()}">도서 상세</title>
+  <style>
+    .book-header { display: flex; gap: 20px; margin-bottom: 20px; }
+    .book-header img { max-width: 150px; }
+    .review-info { margin-top: 8px; padding: 10px 12px; background: #f7f7f7; border-radius: 6px; }
+    .review-rating { color: #d97706; font-weight: bold; }
+    .review-summary { margin-top: 6px; line-height: 1.6; }
+    .review-summary b { color: #333; }
+    .no-review { color: #999; }
+    .review-item { padding: 12px 0; border-bottom: 1px solid #eee; }
+    .review-item .meta { color: #888; font-size: 0.85em; }
+    .review-form { margin-top: 20px; padding: 15px; background: #f7f7f7; border-radius: 6px; }
+    .review-form input, .review-form select, .review-form textarea {
+      display: block; width: 100%; max-width: 400px; margin: 6px 0 12px; padding: 6px;
+    }
+    .flash-message { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
+    .flash-success { background: #dcfce7; color: #166534; }
+    .flash-error { background: #fee2e2; color: #991b1b; }
+  </style>
+</head>
+<body>
+<main>
+  <!-- 리뷰 등록 후 리다이렉트 시 뜨는 안내 메시지 -->
+  <div th:if="${reviewMessage}" class="flash-message flash-success" th:text="${reviewMessage}"></div>
+  <div th:if="${reviewError}" class="flash-message flash-error" th:text="${reviewError}"></div>
+
+  <!-- ── 도서 정보 ── -->
+  <section class="book-header">
+    <img th:if="${book.imageUrl() != null}" th:src="${book.imageUrl()}" alt="">
+    <div>
+      <h1 th:text="${book.title()}">도서 제목</h1>
+      <p>
+        <span th:if="${book.authorName() != null}" th:text="${book.authorName()}">저자</span>
+        <span th:if="${book.publisherName() != null}">
+                    · <span th:text="${book.publisherName()}">출판사</span>
+                </span>
+      </p>
+      <p th:if="${book.publishedDate() != null}">
+        출판일: <span th:text="${book.publishedDate()}">날짜</span>
+      </p>
+      <p th:if="${book.isbn13() != null}">
+        ISBN: <span th:text="${book.isbn13()}">ISBN</span>
+      </p>
+      <p th:if="${book.price() != null}">
+        가격:
+        <span th:if="${book.price().stripTrailingZeros().scale() <= 0}"
+              th:text="${#numbers.formatInteger(book.price(), 1, 'COMMA')}">0</span>
+        <span th:unless="${book.price().stripTrailingZeros().scale() <= 0}"
+              th:text="${#numbers.formatDecimal(book.price(), 1, 'COMMA', -1, 'POINT')}">0.00</span>
+        원
+      </p>
+    </div>
+  </section>
+
+  <section th:if="${book.description() != null}">
+    <h2>책 소개</h2>
+    <p th:text="${book.description()}">도서 설명</p>
+  </section>
+
+  <!-- ── 리뷰 통계 + AI 요약 ── -->
+  <section>
+    <h2>리뷰</h2>
+    <div class="review-info"
+         th:if="${book.averageRating() != null and book.reviewCount() != null and book.reviewCount() > 0}">
+            <span class="review-rating">
+                ★ <span th:text="${#numbers.formatDecimal(book.averageRating(), 1, 1)}">0.0</span>/5.0
+                (<span th:text="${book.reviewCount()}">0</span>개 리뷰)
+            </span>
+      <p class="review-summary"
+         th:if="${book.reviewSummary() != null and !#strings.isEmpty(book.reviewSummary())}"
+         th:utext="${#strings.replace(#strings.replace(#strings.replace(#strings.replace(book.reviewSummary(), '**', ''), '장점:', '<b>장점</b>:'), '단점:', '<br/><br/><b>단점</b>:'), '총평:', '<br/><br/><b>총평</b>:')}">
+        리뷰 요약
+      </p>
+    </div>
+    <div class="review-info"
+         th:unless="${book.averageRating() != null and book.reviewCount() != null and book.reviewCount() > 0}">
+      <span class="no-review">아직 리뷰가 없는 도서입니다. 첫 리뷰를 남겨보세요!</span>
+    </div>
+  </section>
+
+  <!-- ── 리뷰 등록 폼 ── -->
+  <section class="review-form">
+    <h3>리뷰 작성</h3>
+    <form th:action="@{/books/{id}/reviews(id=${book.id()})}" method="post">
+      <label>별점
+        <select name="rating" required>
+          <option value="">선택</option>
+          <option value="5">★★★★★ (5)</option>
+          <option value="4">★★★★ (4)</option>
+          <option value="3">★★★ (3)</option>
+          <option value="2">★★ (2)</option>
+          <option value="1">★ (1)</option>
+        </select>
+      </label>
+      <label>작성자
+        <input type="text" name="author" placeholder="닉네임" required>
+      </label>
+      <label>리뷰 내용
+        <textarea name="content" rows="4" placeholder="이 책에 대한 생각을 남겨주세요" required></textarea>
+      </label>
+      <button type="submit">리뷰 등록</button>
+    </form>
+  </section>
+
+  <!-- ── 리뷰 목록 ── -->
+  <section>
+    <h3>전체 리뷰 (<span th:text="${#lists.size(book.reviews())}">0</span>개)</h3>
+    <p th:if="${#lists.isEmpty(book.reviews())}">아직 작성된 리뷰가 없습니다.</p>
+
+    <div class="review-item" th:each="review : ${book.reviews()}">
+      <p>
+        <strong th:text="${review.author()}">작성자</strong>
+        <span th:text="${'★'.repeat(review.rating())}">★★★★★</span>
+      </p>
+      <p th:text="${review.content()}">리뷰 내용</p>
+      <p class="meta" th:text="${review.createdAt()}">작성일시</p>
+    </div>
+  </section>
+</main>
+</body>
+</html>

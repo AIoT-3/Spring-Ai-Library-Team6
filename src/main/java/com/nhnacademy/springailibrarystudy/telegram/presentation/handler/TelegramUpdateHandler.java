@@ -14,8 +14,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 public class TelegramUpdateHandler {
 
     private final TelegramCallbackHandler callbackHandler;
-    private final TelegramCommandHandler commandHandler;
-    private final TelegramMessageHandler messageHandler;
+    // 모든 메시지를 에이전트에게 위임하도록 여기서 라우팅만 교체한다.
+    private final TelegramAgentMessageHandler agentMessageHandler;
 
     public List<BotApiMethod<?>> handle(Update update) {
         if (update == null) {
@@ -31,17 +31,12 @@ public class TelegramUpdateHandler {
             return List.of();
         }
 
-        // 일반 메시지 처리
+        // 모든 메시지를 에이전트에게 위임 (명령어/일반 메시지 구분 없음)
         Message message = update.getMessage();
         if (!message.hasText()) {
             return List.of();
         }
 
-        // 명령어 처리
-        if (commandHandler.supports(message.getText())) {
-            return commandHandler.handle(message);
-        }
-
-        return messageHandler.handle(message);
+        return agentMessageHandler.handle(message);
     }
 }

@@ -29,7 +29,7 @@ public class RagPromptBuilder {
             2. 각 항목은 반드시 id, recommended, recommendationReason 세 필드만 가집니다. 다른 필드명은 절대 사용하지 마세요.
             3. id 는 각 후보 도서 블록의 'id:' 필드에 적힌 값을 따옴표 없이 정수로 그대로 사용하세요. 예시: id: 50104 -> 50104
             4. recommended 는 true 또는 false 불리언 값만 사용하세요. 따옴표로 감싸지 마세요.
-            5. recommendationReason 은 한국어 한 문장으로 작성하고, 빈 값이나 null 금지.
+            5. recommendationReason 은 한국어로 최소 두 문장에서 최대 4 문장으로 작성하고, 빈 값이나 null 금지.
             6. recommendationReason 값 내부에 큰따옴표와 작은따옴표를 사용하지 마세요.
             7. 책 제목을 언급할 때는 따옴표 없이 제목만 그대로 쓰세요.
 
